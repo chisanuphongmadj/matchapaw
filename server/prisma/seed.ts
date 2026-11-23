@@ -4,11 +4,15 @@
  * รันด้วย: npx prisma db seed
  *
  * จำนวนข้อมูล: Species 3 + Shelter 6 + Pet 44 + Adopter 10 + AdoptionRequest 14
- *            = 77 รายการ
+ *            + User 2 = 79 รายการ
  *
  * ลำดับการทำงาน (ต้องเคารพ Foreign Key):
- *   ลบ: ตารางลูกก่อน -> ตารางแม่  (AdoptionRequest -> Adopter -> Pet -> Shelter -> Species)
- *   สร้าง: ตารางแม่ก่อน -> ตารางลูก (Species/Shelter -> Pet -> Adopter -> AdoptionRequest)
+ *   ลบ: ตารางลูกก่อน -> ตารางแม่  (AdoptionRequest -> Adopter -> User -> Pet -> Shelter -> Species)
+ *   สร้าง: ตารางแม่ก่อน -> ตารางลูก (Species/Shelter -> Pet -> User -> Adopter -> AdoptionRequest)
+ *
+ * บัญชีทดสอบ (สำหรับพัฒนาและ Demo เท่านั้น):
+ *   เจ้าหน้าที่ (ADMIN): admin@matchapaw.test / Admin1234!
+ *   ผู้ใช้ทั่วไป (USER): user@matchapaw.test  / User1234!
  * =============================================================================
  */
 import "dotenv/config";
@@ -19,7 +23,14 @@ import {
   PetStatus,
   PrismaClient,
   RequestStatus,
+  Role,
 } from "@prisma/client";
+import bcrypt from "bcryptjs";
+
+const TEST_USERS = [
+  { name: "เจ้าหน้าที่ MatchAPaw", email: "admin@matchapaw.test", password: "Admin1234!", role: Role.ADMIN },
+  { name: "ผู้ใช้ทดลอง", email: "user@matchapaw.test", password: "User1234!", role: Role.USER },
+] as const;
 
 const adapter = new PrismaPg({ connectionString: process.env["DATABASE_URL"] });
 const prisma = new PrismaClient({ adapter });
@@ -201,6 +212,7 @@ async function main(): Promise<void> {
   console.log("🧹 ล้างข้อมูลเดิม...");
   await prisma.adoptionRequest.deleteMany();
   await prisma.adopter.deleteMany();
+  await prisma.user.deleteMany();
   await prisma.pet.deleteMany();
   await prisma.shelter.deleteMany();
   await prisma.species.deleteMany();
@@ -244,6 +256,13 @@ async function main(): Promise<void> {
     petIds.push(created.id);
   }
 
+  console.log("🔑 สร้างบัญชีทดสอบ...");
+  for (const u of TEST_USERS) {
+    await prisma.user.create({
+      data: { name: u.name, email: u.email, role: u.role, passwordHash: await bcrypt.hash(u.password, 10) },
+    });
+  }
+
   console.log("🙋 สร้างผู้รับเลี้ยงและคำขอ...");
   const adopterIds: number[] = [];
   for (const a of adopterData) {
@@ -261,7 +280,12 @@ async function main(): Promise<void> {
   }
 
   const total =
-    speciesData.length + shelterData.length + petData.length + adopterData.length + requestData.length;
+    speciesData.length +
+    shelterData.length +
+    petData.length +
+    adopterData.length +
+    requestData.length +
+    TEST_USERS.length;
   console.log(`✅ Seed สำเร็จ ทั้งหมด ${total} รายการ (สัตว์ ${petData.length} ตัว)`);
 }
 

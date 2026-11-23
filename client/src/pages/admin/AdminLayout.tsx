@@ -13,7 +13,7 @@ export function AdminLayout(): ReactElement {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold">ระบบจัดการ</h1>
-          <p className="mt-1 text-base-content/70">สำหรับเจ้าหน้าที่บ้านพักพิง (Phase 1: ยังไม่มีระบบล็อกอิน)</p>
+          <p className="mt-1 text-base-content/70">สำหรับเจ้าหน้าที่บ้านพักพิงเท่านั้น จัดการข้อมูลสัตว์และพิจารณาคำขอรับเลี้ยง</p>
         </div>
       </header>
 

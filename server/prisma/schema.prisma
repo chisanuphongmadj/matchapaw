@@ -6,9 +6,10 @@
 //   Species          ชนิดสัตว์ (สุนัข / แมว / กระต่าย)
 //   Shelter          มูลนิธิ/บ้านพักพิงที่ดูแลสัตว์
 //   Pet              สัตว์ที่รอรับเลี้ยง           (FK -> Species, Shelter)
-//   Adopter          ผู้ที่สนใจรับเลี้ยง
+//   Adopter          ผู้ที่สนใจรับเลี้ยง            (FK -> User แบบไม่บังคับ)
 //   AdoptionRequest  คำขอรับเลี้ยง                 (FK -> Adopter, Pet)
 //                    @@unique([adopterId, petId]) กันการส่งคำขอซ้ำตัวเดิม
+//   User             บัญชีผู้ใช้สำหรับล็อกอิน (Phase 2) role = USER | ADMIN
 // =============================================================================
 
 generator client {
@@ -41,6 +42,21 @@ enum RequestStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum Role {
+  USER // ผู้ใช้ทั่วไป: ส่งคำขอรับเลี้ยง ดูคำขอของตัวเอง
+  ADMIN // เจ้าหน้าที่: จัดการสัตว์และคำขอทั้งหมด
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique @db.VarChar(120)
+  name         String   @db.VarChar(100)
+  passwordHash String // เก็บรหัสผ่านที่เข้ารหัสด้วย bcrypt แล้วเท่านั้น
+  role         Role     @default(USER)
+  adopter      Adopter? // ข้อมูลผู้รับเลี้ยงที่ผูกกับบัญชีนี้ (1 ต่อ 1)
+  createdAt    DateTime @default(now())
 }
 
 model Species {
@@ -97,6 +113,9 @@ model Adopter {
   email            String            @unique @db.VarChar(120)
   phone            String            @db.VarChar(20)
   adoptionRequests AdoptionRequest[]
+  // บัญชีผู้ใช้ที่เป็นเจ้าของ (ข้อมูล seed เดิมไม่มีบัญชี จึงเว้นว่างได้)
+  userId           Int?              @unique
+  user             User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt        DateTime          @default(now())
 }
 

@@ -1,16 +1,13 @@
 import { RequestStatus } from "@prisma/client";
 import { z } from "zod";
 
-/** POST /api/adoption-requests */
+/**
+ * POST /api/adoption-requests (ต้องล็อกอิน)
+ * ไม่รับอีเมลจาก body: ใช้อีเมลของบัญชีที่ล็อกอินอยู่ เพื่อกันการส่งคำขอในนามคนอื่น
+ */
 export const adoptionRequestCreateSchema = z.object({
   petId: z.number({ error: "ไม่พบรหัสสัตว์" }).int().positive(),
   name: z.string().trim().min(2, "กรุณากรอกชื่อ-นามสกุล").max(100, "ชื่อยาวเกินไป"),
-  email: z
-    .string({ error: "กรุณากรอกอีเมล" })
-    .trim()
-    .toLowerCase()
-    .max(120, "อีเมลยาวเกินไป")
-    .pipe(z.email("รูปแบบอีเมลไม่ถูกต้อง")),
   phone: z
     .string()
     .trim()

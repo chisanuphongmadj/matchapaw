@@ -19,7 +19,9 @@ export const queryKeys = {
   requests: {
     all: ["adoption-requests"] as const,
     list: (status: RequestStatus | null) => ["adoption-requests", "list", status] as const,
+    mine: ["adoption-requests", "mine"] as const,
   },
+  me: ["auth", "me"] as const,
   species: ["species"] as const,
   shelters: ["shelters"] as const,
   stats: ["stats"] as const,

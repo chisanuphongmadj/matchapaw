@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactElement, type ReactNode } from "react";
-import { ApiError } from "../../../lib/apiClient";
+import { ApiError, getErrorMessage } from "../../../lib/apiClient";
 import { formatAge, genderLabel, isOneOf, petStatusMeta, sizeLabel } from "../../../lib/format";
 import {
   GENDERS,
@@ -13,6 +13,7 @@ import {
 } from "../../../types/models";
 import { ErrorAlert } from "../../../components/ui/ErrorAlert";
 import { useShelters, useSpecies } from "../../meta/metaApi";
+import { useUploadPetImage } from "../petApi";
 import { PetImage } from "./PetImage";
 
 /** ค่าในฟอร์ม (ตัวเลขเก็บเป็น string ระหว่างพิมพ์ แล้วค่อยแปลงตอนส่ง) */
@@ -151,6 +152,16 @@ export function PetForm({
   const [errors, setErrors] = useState<FormErrors>({});
   const species = useSpecies();
   const shelters = useShelters();
+  const upload = useUploadPetImage();
+
+  // อัปโหลดรูป -> ได้ URL จาก Supabase Storage -> ใส่ลงช่องลิงก์รูปให้อัตโนมัติ
+  const handleUpload = (file: File): void => {
+    if (file.size > 3 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, imageUrl: "ไฟล์รูปใหญ่เกิน 3MB" }));
+      return;
+    }
+    upload.mutate(file, { onSuccess: (url) => update("imageUrl", url) });
+  };
 
   // error ของแต่ละฟิลด์ที่ Server ส่งกลับมา (400 Validation)
   const serverErrors: Record<string, string> =
@@ -372,6 +383,23 @@ export function PetForm({
           speciesSlug={selectedSpecies?.slug ?? ""}
           className="aspect-4/3 w-full rounded-box"
         />
+        <label className={`btn btn-outline btn-primary btn-sm mt-3 w-full ${upload.isPending ? "btn-disabled" : ""}`}>
+          {upload.isPending && <span className="loading loading-spinner loading-xs" />}
+          {upload.isPending ? "กำลังอัปโหลด..." : "อัปโหลดรูปจากเครื่อง"}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="hidden"
+            disabled={upload.isPending}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) handleUpload(file);
+            }}
+          />
+        </label>
+        <p className="mt-1 text-xs text-base-content/60">JPG, PNG, WEBP หรือ GIF ไม่เกิน 3MB หรือวางลิงก์รูปในช่องด้านซ้าย</p>
+        {upload.isError && <p className="mt-1 text-xs text-error">{getErrorMessage(upload.error)}</p>}
       </aside>
     </form>
   );

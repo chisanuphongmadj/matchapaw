@@ -1,6 +1,8 @@
 import { PetStatus, Prisma, RequestStatus } from "@prisma/client";
 import type { Request, Response } from "express";
+import { notifyRequestDecision, notifyRequestReceived } from "../lib/notifications";
 import { prisma } from "../lib/prisma";
+import { currentUser } from "../middlewares/auth";
 import type { ApiList, ApiSuccess } from "../types/api";
 import { HttpError } from "../utils/HttpError";
 import { parseId, parseWith } from "../utils/validate";
@@ -46,7 +48,7 @@ function isUniqueViolation(error: unknown): boolean {
   return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
 }
 
-// GET /api/adoption-requests - รายการคำขอทั้งหมด (กรองด้วย ?status= หรือ ?petId=)
+// GET /api/adoption-requests - รายการคำขอทั้งหมด (เจ้าหน้าที่) กรองด้วย ?status= หรือ ?petId=
 export async function listRequests(
   req: Request,
   res: Response<ApiList<AdoptionRequestItem>>,
@@ -64,11 +66,26 @@ export async function listRequests(
   res.json({ data: requests, meta: { total: requests.length } });
 }
 
-// POST /api/adoption-requests - ส่งคำขอรับเลี้ยง
+// GET /api/adoption-requests/mine - คำขอของผู้ใช้ที่ล็อกอินอยู่
+export async function listMyRequests(
+  req: Request,
+  res: Response<ApiList<AdoptionRequestItem>>,
+): Promise<void> {
+  const user = currentUser(req);
+  const requests = await prisma.adoptionRequest.findMany({
+    where: { adopter: { userId: user.id } },
+    include: requestInclude,
+    orderBy: { createdAt: "desc" },
+  });
+  res.json({ data: requests, meta: { total: requests.length } });
+}
+
+// POST /api/adoption-requests - ส่งคำขอรับเลี้ยง (ต้องล็อกอิน)
 export async function createRequest(
   req: Request,
   res: Response<ApiSuccess<AdoptionRequestItem>>,
 ): Promise<void> {
+  const user = currentUser(req);
   const body = parseWith(adoptionRequestCreateSchema, req.body);
 
   const pet = await prisma.pet.findUnique({
@@ -80,13 +97,14 @@ export async function createRequest(
     throw new HttpError(409, "น้องตัวนี้ได้บ้านใหม่แล้ว ไม่สามารถส่งคำขอได้");
   }
 
+  let created: AdoptionRequestItem;
   try {
-    const created = await prisma.$transaction(async (tx) => {
-      // ใช้อีเมลเป็นตัวระบุผู้รับเลี้ยง: มีอยู่แล้ว = อัปเดตข้อมูล, ยังไม่มี = สร้างใหม่
+    created = await prisma.$transaction(async (tx) => {
+      // ผู้รับเลี้ยงผูกกับบัญชีที่ล็อกอิน (ใช้อีเมลของบัญชี) มีแล้วอัปเดต ไม่มีสร้างใหม่
       const adopter = await tx.adopter.upsert({
-        where: { email: body.email },
-        update: { name: body.name, phone: body.phone },
-        create: { name: body.name, email: body.email, phone: body.phone },
+        where: { email: user.email },
+        update: { name: body.name, phone: body.phone, userId: user.id },
+        create: { name: body.name, email: user.email, phone: body.phone, userId: user.id },
       });
       const request = await tx.adoptionRequest.create({
         data: { adopterId: adopter.id, petId: pet.id, message: body.message },
@@ -97,17 +115,20 @@ export async function createRequest(
         include: requestInclude,
       });
     });
-    res.status(201).json({ data: created });
   } catch (error: unknown) {
     // @@unique([adopterId, petId]) ทำงาน: คนเดิมขอสัตว์ตัวเดิมซ้ำ
     if (isUniqueViolation(error)) {
-      throw new HttpError(409, "อีเมลนี้ได้ส่งคำขอรับเลี้ยงน้องตัวนี้ไปแล้ว");
+      throw new HttpError(409, "คุณได้ส่งคำขอรับเลี้ยงน้องตัวนี้ไปแล้ว");
     }
     throw error;
   }
+
+  res.status(201).json({ data: created });
+  // ส่งอีเมลหลังตอบกลับแล้ว ผู้ใช้ไม่ต้องรอ (ไม่ได้ตั้งค่าอีเมลก็ข้ามไปเอง)
+  void notifyRequestReceived(created);
 }
 
-// PATCH /api/adoption-requests/:id/status - อนุมัติ / ปฏิเสธ คำขอ
+// PATCH /api/adoption-requests/:id/status - อนุมัติ / ปฏิเสธ คำขอ (เจ้าหน้าที่)
 export async function updateRequestStatus(
   req: Request<IdParams>,
   res: Response<ApiSuccess<AdoptionRequestItem>>,
@@ -118,23 +139,28 @@ export async function updateRequestStatus(
   const existing = await prisma.adoptionRequest.findUnique({ where: { id }, select: { petId: true } });
   if (!existing) throw new HttpError(404, `ไม่พบคำขอรหัส ${id}`);
 
-  const updated = await prisma.$transaction(async (tx) => {
+  const { updated, autoRejected } = await prisma.$transaction(async (tx) => {
     await tx.adoptionRequest.update({ where: { id }, data: { status } });
+
+    let autoRejected: AdoptionRequestItem[] = [];
     if (status === RequestStatus.APPROVED) {
       // อนุมัติคนหนึ่งแล้ว คำขออื่นที่รออยู่ของสัตว์ตัวเดียวกันจะถูกปฏิเสธอัตโนมัติ
-      await tx.adoptionRequest.updateMany({
-        where: { petId: existing.petId, id: { not: id }, status: RequestStatus.PENDING },
-        data: { status: RequestStatus.REJECTED },
-      });
+      const others = { petId: existing.petId, id: { not: id }, status: RequestStatus.PENDING };
+      const ids = (await tx.adoptionRequest.findMany({ where: others, select: { id: true } })).map((r) => r.id);
+      await tx.adoptionRequest.updateMany({ where: { id: { in: ids } }, data: { status: RequestStatus.REJECTED } });
+      autoRejected = await tx.adoptionRequest.findMany({ where: { id: { in: ids } }, include: requestInclude });
     }
+
     await syncPetStatus(tx, existing.petId);
-    return tx.adoptionRequest.findUniqueOrThrow({ where: { id }, include: requestInclude });
+    const updated = await tx.adoptionRequest.findUniqueOrThrow({ where: { id }, include: requestInclude });
+    return { updated, autoRejected };
   });
 
   res.json({ data: updated });
+  for (const request of [updated, ...autoRejected]) void notifyRequestDecision(request);
 }
 
-// DELETE /api/adoption-requests/:id - ลบคำขอ
+// DELETE /api/adoption-requests/:id - ลบคำขอ (เจ้าหน้าที่)
 export async function deleteRequest(req: Request<IdParams>, res: Response): Promise<void> {
   const id = parseId(req.params.id);
   await prisma.$transaction(async (tx) => {

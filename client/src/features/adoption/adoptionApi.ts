@@ -22,6 +22,14 @@ export function useAdoptionRequests(status: RequestStatus | null) {
   });
 }
 
+/** คำขอของผู้ใช้ที่ล็อกอินอยู่ (GET /api/adoption-requests/mine) */
+export function useMyRequests() {
+  return useQuery({
+    queryKey: queryKeys.requests.mine,
+    queryFn: async () => (await apiClient.get<ApiList<AdoptionRequest>>("/adoption-requests/mine")).data,
+  });
+}
+
 /** คำขอรับเลี้ยงกระทบสถานะของสัตว์ด้วย จึง invalidate ทั้ง requests, pets และ stats */
 function useInvalidateAdoptionData() {
   const queryClient = useQueryClient();

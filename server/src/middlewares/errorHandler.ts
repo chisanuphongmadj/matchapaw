@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import type { ErrorRequestHandler, RequestHandler } from "express";
+import multer from "multer";
 import type { ApiErrorBody } from "../types/api";
 import { HttpError } from "../utils/HttpError";
 
@@ -44,6 +45,11 @@ export const errorHandler: ErrorRequestHandler = (error: unknown, _req, res, _ne
     httpError = fromPrismaError(error);
   } else if (isJsonSyntaxError(error)) {
     httpError = new HttpError(400, "รูปแบบ JSON ไม่ถูกต้อง");
+  } else if (error instanceof multer.MulterError) {
+    httpError = new HttpError(
+      400,
+      error.code === "LIMIT_FILE_SIZE" ? "ไฟล์รูปใหญ่เกิน 3MB" : `อัปโหลดไฟล์ไม่สำเร็จ (${error.code})`,
+    );
   }
 
   if (!httpError) {

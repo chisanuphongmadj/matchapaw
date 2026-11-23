@@ -1,0 +1,33 @@
+# Render Blueprint: Backend API ของ MatchAPaw
+# วิธีใช้: Render Dashboard > New > Blueprint > เลือก repo นี้ แล้วกรอกค่าที่มี sync: false
+services:
+  - type: web
+    name: matchapaw-api
+    runtime: node
+    rootDir: server
+    plan: free
+    # --include=dev เพราะต้องใช้ typescript และ prisma ตอน build (NODE_ENV=production จะข้าม devDependencies)
+    buildCommand: npm install --include=dev && npm run build && npx prisma migrate deploy
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: pet-images
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: MatchAPaw <onboarding@resend.dev>

@@ -1,3 +1,4 @@
+import { useAuthStore } from "../stores/authStore";
 import type { ApiErrorBody, ValidationIssue } from "../types/api";
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
@@ -52,13 +53,22 @@ export function toQueryString(params: Record<string, QueryValue>): string {
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 async function request<T>(method: HttpMethod, path: string, body?: unknown): Promise<T> {
+  const token = useAuthStore.getState().token;
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  // FormData (อัปโหลดไฟล์) ให้เบราว์เซอร์ตั้ง Content-Type เอง ส่วนข้อมูลอื่นส่งเป็น JSON
+  let requestBody: BodyInit | undefined;
+  if (body instanceof FormData) {
+    requestBody = body;
+  } else if (body !== undefined) {
+    headers["Content-Type"] = "application/json";
+    requestBody = JSON.stringify(body);
+  }
+
   let response: Response;
   try {
-    response = await fetch(`${BASE_URL}${path}`, {
-      method,
-      headers: body === undefined ? undefined : { "Content-Type": "application/json" },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
+    response = await fetch(`${BASE_URL}${path}`, { method, headers, body: requestBody });
   } catch {
     throw new ApiError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบว่า Backend ทำงานอยู่", 0);
   }
@@ -68,6 +78,8 @@ async function request<T>(method: HttpMethod, path: string, body?: unknown): Pro
   const payload: unknown = await response.json().catch(() => null);
 
   if (!response.ok) {
+    // token หมดอายุหรือใช้ไม่ได้แล้ว -> ออกจากระบบอัตโนมัติ
+    if (response.status === 401 && token) useAuthStore.getState().logout();
     if (isApiErrorBody(payload)) {
       throw new ApiError(payload.error.message, response.status, payload.error.details);
     }
@@ -83,4 +95,5 @@ export const apiClient = {
   put: <T>(path: string, body: unknown): Promise<T> => request<T>("PUT", path, body),
   patch: <T>(path: string, body: unknown): Promise<T> => request<T>("PATCH", path, body),
   delete: (path: string): Promise<void> => request<void>("DELETE", path),
+  upload: <T>(path: string, form: FormData): Promise<T> => request<T>("POST", path, form),
 };

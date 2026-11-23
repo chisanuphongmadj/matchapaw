@@ -30,7 +30,17 @@ export const petApi = {
   patch: async (id: number, input: Partial<PetInput>): Promise<PetDetail> =>
     (await apiClient.patch<ApiSuccess<PetDetail>>(`/pets/${id}`, input)).data,
   remove: (id: number): Promise<void> => apiClient.delete(`/pets/${id}`),
+  /** อัปโหลดรูปไป Supabase Storage (ผ่าน Backend) แล้วได้ URL กลับมา */
+  uploadImage: async (file: File): Promise<string> => {
+    const form = new FormData();
+    form.append("file", file);
+    return (await apiClient.upload<ApiSuccess<{ url: string }>>("/uploads/pet-image", form)).data.url;
+  },
 };
+
+export function useUploadPetImage() {
+  return useMutation({ mutationFn: petApi.uploadImage });
+}
 
 // ---------------------------------------------------------------------------
 // Queries (อ่านข้อมูล)

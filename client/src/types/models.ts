@@ -107,12 +107,36 @@ export interface AdoptionRequest {
   };
 }
 
+/** อีเมลไม่ต้องส่ง: Server ใช้อีเมลของบัญชีที่ล็อกอินอยู่ */
 export interface AdoptionRequestInput {
   petId: number;
   name: string;
-  email: string;
   phone: string;
   message: string;
+}
+
+export type Role = "USER" | "ADMIN";
+
+/** ผู้ใช้ที่ล็อกอินอยู่ (ได้จาก GET /api/auth/me) */
+export interface AuthUser {
+  id: number;
+  email: string;
+  name: string;
+  role: Role;
+}
+
+export interface AuthResult {
+  token: string;
+  user: AuthUser;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+export interface RegisterInput extends LoginInput {
+  name: string;
 }
 
 export interface Stats {
