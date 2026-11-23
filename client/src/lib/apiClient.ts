@@ -1,0 +1,86 @@
+import type { ApiErrorBody, ValidationIssue } from "../types/api";
+
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
+
+/** Error จาก API ที่มี status code และรายละเอียดของแต่ละฟิลด์ */
+export class ApiError extends Error {
+  readonly status: number;
+  readonly details: ValidationIssue[];
+
+  constructor(message: string, status: number, details: ValidationIssue[] = []) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.details = details;
+  }
+
+  /** แปลง details เป็น { ชื่อฟิลด์: ข้อความ } เพื่อแสดงใต้ช่องกรอก */
+  get fieldErrors(): Record<string, string> {
+    const result: Record<string, string> = {};
+    for (const issue of this.details) {
+      result[issue.field] ??= issue.message;
+    }
+    return result;
+  }
+}
+
+function isApiErrorBody(value: unknown): value is ApiErrorBody {
+  if (typeof value !== "object" || value === null || !("error" in value)) return false;
+  const error: unknown = value.error;
+  return typeof error === "object" && error !== null && "message" in error;
+}
+
+/** ดึงข้อความ error ที่อ่านเข้าใจได้จาก error ทุกชนิด */
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ";
+}
+
+type QueryValue = string | number | null | undefined;
+
+/** สร้าง query string โดยข้ามค่าที่ว่าง เช่น { search: "", speciesId: 1 } -> "?speciesId=1" */
+export function toQueryString(params: Record<string, QueryValue>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value === null || value === undefined || value === "") continue;
+    search.set(key, String(value));
+  }
+  const text = search.toString();
+  return text ? `?${text}` : "";
+}
+
+type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
+async function request<T>(method: HttpMethod, path: string, body?: unknown): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(`${BASE_URL}${path}`, {
+      method,
+      headers: body === undefined ? undefined : { "Content-Type": "application/json" },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบว่า Backend ทำงานอยู่", 0);
+  }
+
+  if (response.status === 204) return undefined as T;
+
+  const payload: unknown = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    if (isApiErrorBody(payload)) {
+      throw new ApiError(payload.error.message, response.status, payload.error.details);
+    }
+    throw new ApiError(`เกิดข้อผิดพลาดจากเซิร์ฟเวอร์ (HTTP ${response.status})`, response.status);
+  }
+
+  return payload as T;
+}
+
+export const apiClient = {
+  get: <T>(path: string): Promise<T> => request<T>("GET", path),
+  post: <T>(path: string, body: unknown): Promise<T> => request<T>("POST", path, body),
+  put: <T>(path: string, body: unknown): Promise<T> => request<T>("PUT", path, body),
+  patch: <T>(path: string, body: unknown): Promise<T> => request<T>("PATCH", path, body),
+  delete: (path: string): Promise<void> => request<void>("DELETE", path),
+};

@@ -1,0 +1,119 @@
+// =============================================================================
+// MatchAPaw - Prisma Schema
+// ระบบจับคู่สัตว์จรกับครอบครัวใหม่ (Community & Social Impact)
+//
+// ตารางหลัก:
+//   Species          ชนิดสัตว์ (สุนัข / แมว / กระต่าย)
+//   Shelter          มูลนิธิ/บ้านพักพิงที่ดูแลสัตว์
+//   Pet              สัตว์ที่รอรับเลี้ยง           (FK -> Species, Shelter)
+//   Adopter          ผู้ที่สนใจรับเลี้ยง
+//   AdoptionRequest  คำขอรับเลี้ยง                 (FK -> Adopter, Pet)
+//                    @@unique([adopterId, petId]) กันการส่งคำขอซ้ำตัวเดิม
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Prisma 7: URL ของฐานข้อมูลกำหนดไว้ใน prisma.config.ts (ไม่ได้อยู่ในไฟล์นี้)
+datasource db {
+  provider = "postgresql"
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum PetSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum PetStatus {
+  AVAILABLE // พร้อมหาบ้าน
+  PENDING // มีคนขอรับเลี้ยงแล้ว รอพิจารณา
+  ADOPTED // ได้บ้านแล้ว
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Species {
+  id   Int    @id @default(autoincrement())
+  name String @unique @db.VarChar(30) // ชื่อภาษาไทย เช่น "สุนัข"
+  slug String @unique @db.VarChar(30) // ใช้ในโค้ด เช่น "dog"
+  pets Pet[]
+}
+
+model Shelter {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(100)
+  province    String   @db.VarChar(50)
+  district    String   @db.VarChar(50)
+  phone       String   @db.VarChar(20)
+  description String?  @db.Text
+  pets        Pet[]
+  createdAt   DateTime @default(now())
+}
+
+model Pet {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(50)
+  breed       String    @db.VarChar(60)
+  gender      Gender
+  ageMonths   Int // อายุเป็นเดือน
+  size        PetSize
+  color       String    @db.VarChar(40)
+  description String    @db.Text
+  imageUrl    String?
+  vaccinated  Boolean   @default(false)
+  sterilized  Boolean   @default(false)
+  status      PetStatus @default(AVAILABLE)
+
+  speciesId Int
+  shelterId Int
+  // Restrict: ห้ามลบ Species/Shelter ถ้ายังมีสัตว์ผูกอยู่
+  species   Species @relation(fields: [speciesId], references: [id], onDelete: Restrict)
+  shelter   Shelter @relation(fields: [shelterId], references: [id], onDelete: Restrict)
+
+  adoptionRequests AdoptionRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([speciesId])
+  @@index([shelterId])
+  @@index([status])
+}
+
+model Adopter {
+  id               Int               @id @default(autoincrement())
+  name             String            @db.VarChar(100)
+  email            String            @unique @db.VarChar(120)
+  phone            String            @db.VarChar(20)
+  adoptionRequests AdoptionRequest[]
+  createdAt        DateTime          @default(now())
+}
+
+model AdoptionRequest {
+  id        Int           @id @default(autoincrement())
+  message   String        @db.Text
+  status    RequestStatus @default(PENDING)
+
+  adopterId Int
+  petId     Int
+  // Cascade: ลบสัตว์หรือผู้รับเลี้ยงแล้ว คำขอที่เกี่ยวข้องจะถูกลบตาม
+  adopter   Adopter @relation(fields: [adopterId], references: [id], onDelete: Cascade)
+  pet       Pet     @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // ผู้รับเลี้ยง 1 คน ส่งคำขอสำหรับสัตว์ 1 ตัวได้เพียงครั้งเดียว
+  @@unique([adopterId, petId])
+}
