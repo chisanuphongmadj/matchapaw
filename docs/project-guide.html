@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MatchAPaw Project Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f4f8f0;
+    --bg-code: #1f2a1c;
+    --card: #ffffff;
+    --border: #dde7d5;
+    --text: #1f2a1c;
+    --muted: #5f6d5c;
+    --primary: #5f8b4c;
+    --primary-strong: #2e4a26;
+    --accent: #d9703a;
+    --butter: #f2c14e;
+    --blue: #3e7cb1;
+    --code-text: #eef4e8;
+    --code-hl: #f2c14e;
+    --tag-db: #3e7cb1;
+    --tag-be: #d9703a;
+    --tag-fe: #5f8b4c;
+    --tag-ui: #8c5a3c;
+    --shadow: 0 2px 10px rgba(31, 42, 28, .07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161d15; --bg-soft: #1e281c; --card: #1c2519; --border: #31402d; --text: #e9f0e4; --muted: #a6b5a1;
+      --primary: #8fbf78; --primary-strong: #c9e3bb; --accent: #f0935c; --blue: #79aee0; --bg-code: #0f150e;
+      --shadow: 0 2px 10px rgba(0, 0, 0, .3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161d15; --bg-soft: #1e281c; --card: #1c2519; --border: #31402d; --text: #e9f0e4; --muted: #a6b5a1;
+    --primary: #8fbf78; --primary-strong: #c9e3bb; --accent: #f0935c; --blue: #79aee0; --bg-code: #0f150e;
+    --shadow: 0 2px 10px rgba(0, 0, 0, .3);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: "Prompt", "Leelawadee UI", system-ui, sans-serif; line-height: 1.7; font-size: 16px; }
+  code, pre, .mono { font-family: "JetBrains Mono", Consolas, monospace; }
+  a { color: var(--primary); }
+  .layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); max-width: 1280px; margin: 0 auto; }
+  nav.side { position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 28px 18px; border-right: 1px solid var(--border); }
+  nav.side .brand { font-weight: 700; font-size: 20px; color: var(--primary); display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+  nav.side .brand span { color: var(--accent); }
+  nav.side a { display: block; padding: 6px 10px; border-radius: 8px; color: var(--text); text-decoration: none; font-size: 15px; }
+  nav.side a:hover, nav.side a.active { background: var(--bg-soft); color: var(--primary); }
+  nav.side .group { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 16px 10px 4px; }
+  .theme-btn { margin-top: 18px; width: 100%; padding: 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font: inherit; cursor: pointer; }
+  main { padding: 32px 40px 80px; min-width: 0; }
+  header.hero { background: linear-gradient(135deg, #2e4a26, #5f8b4c); color: #fff; border-radius: 22px; padding: 36px 40px; margin-bottom: 36px; }
+  header.hero h1 { margin: 0 0 6px; font-size: 34px; line-height: 1.3; }
+  header.hero p { margin: 0; opacity: .92; max-width: 760px; }
+  header.hero .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  header.hero .chips span { background: rgba(255,255,255,.16); padding: 4px 12px; border-radius: 99px; font-size: 14px; }
+  section { margin-bottom: 56px; }
+  h2 { font-size: 26px; margin: 0 0 6px; color: var(--primary-strong); }
+  h2 + .lead { color: var(--muted); margin: 0 0 20px; }
+  h3 { font-size: 19px; margin: 24px 0 8px; }
+  .grid { display: grid; gap: 16px; }
+  .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .card h4 { margin: 0 0 4px; font-size: 17px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; background: var(--card); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--bg-soft); font-weight: 600; }
+  tr:last-child td { border-bottom: 0; }
+  .table-wrap { overflow-x: auto; border-radius: 14px; }
+  pre { background: var(--bg-code); color: var(--code-text); padding: 16px 18px; border-radius: 12px; overflow-x: auto; font-size: 13.5px; line-height: 1.6; margin: 10px 0; }
+  pre .hl { color: var(--code-hl); }
+  pre .cm { color: #9fb59a; }
+  :not(pre) > code { background: var(--bg-soft); border: 1px solid var(--border); padding: 1px 6px; border-radius: 6px; font-size: .88em; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 9px; border-radius: 99px; color: #fff; vertical-align: middle; }
+  .tag.db { background: var(--tag-db); } .tag.be { background: var(--tag-be); } .tag.fe { background: var(--tag-fe); } .tag.ui { background: var(--tag-ui); }
+  .callout { border-radius: 14px; padding: 14px 18px; background: var(--bg-soft); border: 1px solid var(--border); margin: 14px 0; }
+  .callout strong { color: var(--primary-strong); }
+  .callout.warn { background: rgba(217, 112, 58, .1); border-color: rgba(217, 112, 58, .45); }
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 0; }
+  .steps > li { counter-increment: s; position: relative; padding: 4px 0 18px 52px; border-left: 2px solid var(--border); margin-left: 18px; }
+  .steps > li:last-child { border-left-color: transparent; }
+  .steps > li::before { content: counter(s); position: absolute; left: -19px; top: 0; width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 700; }
+  .steps > li > b { display: block; font-size: 17px; }
+  .steps .file { display: block; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+  .steps > li { min-width: 0; }
+  .grid > * { min-width: 0; }
+  :not(pre) > code { overflow-wrap: anywhere; }
+  .search { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0 14px; }
+  .search input { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: var(--text); font: inherit; }
+  .search .hint { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  details.file { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin: 10px 0; box-shadow: var(--shadow); }
+  details.file > summary { cursor: pointer; padding: 14px 18px; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; }
+  details.file > summary::-webkit-details-marker { display: none; }
+  details.file > summary .path { font-family: "JetBrains Mono", Consolas, monospace; font-weight: 600; font-size: 15px; overflow-wrap: anywhere; }
+  details.file > summary .role { grid-column: 1 / -1; color: var(--muted); font-size: 14.5px; }
+  details.file[open] > summary { border-bottom: 1px solid var(--border); }
+  details.file .body { padding: 14px 18px 18px; }
+  details.file .body ul { margin: 6px 0; padding-left: 22px; }
+  details.file .body h5 { margin: 12px 0 4px; font-size: 15px; color: var(--primary-strong); }
+  .tree { font-size: 13.5px; line-height: 1.75; }
+  .tree a { color: #c9e3bb; text-decoration: none; border-bottom: 1px dashed rgba(201,227,187,.4); }
+  .qa details { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin: 8px 0; }
+  .qa summary { cursor: pointer; padding: 12px 18px; font-weight: 600; }
+  .qa .ans { padding: 0 18px 14px; color: var(--text); }
+  .diagram { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 12px; overflow-x: auto; }
+  .diagram svg { display: block; min-width: 760px; width: 100%; height: auto; }
+  .hidden { display: none !important; }
+  .count { font-size: 14px; color: var(--muted); }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.side { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); padding: 16px; display: flex; flex-wrap: wrap; gap: 4px; }
+    nav.side .brand { width: 100%; margin-bottom: 6px; }
+    nav.side .group { display: none; }
+    nav.side a { padding: 4px 10px; background: var(--bg-soft); font-size: 14px; }
+    .theme-btn { width: auto; margin-top: 0; }
+    main { padding: 20px 16px 60px; }
+    header.hero { padding: 24px 20px; }
+    header.hero h1 { font-size: 26px; }
+    .g2, .g3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="side" aria-label="สารบัญ">
+    <div class="brand">🐾 <b>Match<span>A</span>Paw</b></div>
+    <div class="group">เริ่มต้น</div>
+    <a href="#overview">ภาพรวมโปรเจกต์</a>
+    <a href="#rubric">เกณฑ์คะแนน → ไฟล์ไหน</a>
+    <a href="#architecture">สถาปัตยกรรม</a>
+    <a href="#trace">ตามรอย 1 Request</a>
+    <a href="#tree">โครงสร้างโฟลเดอร์</a>
+    <div class="group">อธิบายทุกไฟล์</div>
+    <a href="#files-db">Database</a>
+    <a href="#files-be">Backend</a>
+    <a href="#files-fe">Frontend</a>
+    <div class="group">เตรียมนำเสนอ</div>
+    <a href="#live">แก้โค้ดสดในคาบ</a>
+    <a href="#qa">คำถามที่อาจารย์อาจถาม</a>
+    <a href="#commands">คำสั่งที่ใช้บ่อย</a>
+    <button class="theme-btn" type="button" id="themeBtn">สลับโหมดสว่าง/มืด</button>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <h1>คู่มือโครงสร้างโปรเจกต์ MatchAPaw</h1>
+      <p>อธิบายว่าแต่ละไฟล์ทำหน้าที่อะไร ข้อมูลวิ่งผ่านไฟล์ไหนบ้าง และถ้าอาจารย์ให้แก้โค้ดในคาบต้องไปแก้ที่ไหน อ่านส่วนของตัวเองให้เข้าใจก่อนวันนำเสนอ</p>
+      <div class="chips"><span>React 19 + TypeScript</span><span>React Router v7</span><span>TanStack Query + Zustand</span><span>Express 5</span><span>Prisma 7</span><span>PostgreSQL (Supabase)</span></div>
+    </header>
+
+    <!-- ============================================================ -->
+    <section id="overview">
+      <h2>ภาพรวมโปรเจกต์</h2>
+      <p class="lead">เว็บหาบ้านให้สัตว์จร (หัวข้อ Community &amp; Social Impact) แบ่งเป็น 2 โฟลเดอร์ที่รันแยกกัน</p>
+      <div class="grid g3">
+        <div class="card"><h4><span class="tag fe">client/</span> Frontend</h4><p>React SPA รันที่ <code>localhost:5173</code> แสดงหน้าเว็บทั้งหมด และเรียก API ผ่าน TanStack Query</p></div>
+        <div class="card"><h4><span class="tag be">server/</span> Backend</h4><p>Express REST API รันที่ <code>localhost:3000/api</code> ตรวจข้อมูลด้วย Zod และคุยกับฐานข้อมูลผ่าน Prisma</p></div>
+        <div class="card"><h4><span class="tag db">Supabase</span> Database</h4><p>PostgreSQL ออนไลน์ มี 5 ตาราง และข้อมูลตั้งต้น 77 รายการจาก <code>seed.ts</code></p></div>
+      </div>
+      <h3>สีป้ายในคู่มือนี้ = คนรับผิดชอบ</h3>
+      <p><span class="tag db">DB</span> Database &nbsp; <span class="tag be">BE</span> Backend API &nbsp; <span class="tag fe">FE</span> Frontend &nbsp; <span class="tag ui">UI</span> UI/UX</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="rubric">
+      <h2>เกณฑ์คะแนน → ดูโค้ดที่ไฟล์ไหน</h2>
+      <p class="lead">ถ้าอาจารย์ถามตามหัวข้อในเกณฑ์ ให้เปิดไฟล์ในคอลัมน์ขวาโชว์ได้ทันที</p>
+      <div class="table-wrap"><table>
+        <tr><th>หัวข้อในเกณฑ์</th><th>สิ่งที่เราทำ</th><th>เปิดไฟล์นี้</th></tr>
+        <tr><td>TypeScript ไม่มี any</td><td>ทุกไฟล์เป็น .ts/.tsx มี Type ของข้อมูลและ Response ครบ, <code>tsc</code> ผ่านทั้งสองฝั่ง</td><td><code>client/src/types/models.ts</code>, <code>server/src/types/api.ts</code></td></tr>
+        <tr><td>โครงสร้างโค้ด</td><td>แยก client/ กับ server/ และแบ่งโฟลเดอร์ตามหน้าที่</td><td><a href="#tree">โครงสร้างโฟลเดอร์</a></td></tr>
+        <tr><td>State Management (Dual-State)</td><td>Zustand เก็บตัวกรอง/รายการโปรด/ธีม/toast, TanStack Query เก็บข้อมูลจาก DB</td><td><code>client/src/stores/*</code>, <code>features/pets/petApi.ts</code></td></tr>
+        <tr><td>Persist ลง localStorage</td><td><code>persist()</code> ของ Zustand ใน favoriteStore และ themeStore</td><td><code>stores/favoriteStore.ts</code></td></tr>
+        <tr><td>RESTful + Status Code</td><td>GET/POST/PUT/PATCH/DELETE และ 200/201/204/400/404/409/503</td><td><code>server/src/routes/*</code>, <code>controllers/*</code></td></tr>
+        <tr><td>Middleware</td><td>cors, dotenv, express.json(), logger, errorHandler</td><td><code>server/src/app.ts</code></td></tr>
+        <tr><td>Prisma: PK, FK, @@unique</td><td>5 model, Relation, <code>@@unique([adopterId, petId])</code>, onDelete</td><td><code>server/prisma/schema.prisma</code></td></tr>
+        <tr><td>Seed ≥ 40 รายการ</td><td>77 รายการ (สัตว์ 44 ตัว)</td><td><code>server/prisma/seed.ts</code></td></tr>
+        <tr><td>Data Validation</td><td>Zod ฝั่ง Server + ตรวจในฟอร์มฝั่ง Client</td><td><code>server/src/validators/*</code>, <code>PetForm.tsx</code></td></tr>
+        <tr><td>Loading / Error</td><td>Skeleton ทุกหน้าที่โหลดข้อมูล และ ErrorAlert พร้อมปุ่มลองใหม่</td><td><code>PetCard.tsx</code> (PetCardSkeleton), <code>ErrorAlert.tsx</code></td></tr>
+        <tr><td>Zero-Refresh</td><td><code>invalidateQueries()</code> ใน onSuccess ของทุก mutation</td><td><code>features/pets/petApi.ts</code>, <code>adoptionApi.ts</code></td></tr>
+        <tr><td>Routing + Dynamic Page</td><td>React Router v7, <code>/pets/:id</code>, Nested Route ของ Admin</td><td><code>client/src/router.tsx</code></td></tr>
+      </table></div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="architecture">
+      <h2>สถาปัตยกรรม</h2>
+      <p class="lead">Frontend กับ Backend แยกกันอิสระ คุยกันผ่าน HTTP + JSON เท่านั้น (Decoupled SPA)</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1000 380" role="img" aria-label="แผนภาพสถาปัตยกรรม: React, TanStack Query, Express, Prisma, PostgreSQL">
+          <defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
+          <g font-family="Prompt, sans-serif" font-size="14">
+            <rect x="10" y="10" width="380" height="360" rx="18" fill="#5f8b4c" fill-opacity=".14"/>
+            <text x="30" y="40" font-weight="700" fill="currentColor">client/ · React SPA · :5173</text>
+            <rect x="410" y="10" width="300" height="360" rx="18" fill="#d9703a" fill-opacity=".14"/>
+            <text x="430" y="40" font-weight="700" fill="currentColor">server/ · Express · :3000</text>
+            <rect x="730" y="10" width="260" height="360" rx="18" fill="#3e7cb1" fill-opacity=".14"/>
+            <text x="750" y="40" font-weight="700" fill="currentColor">Supabase (cloud)</text>
+            <g fill="var(--card)" stroke="var(--border)">
+              <rect x="30" y="60" width="340" height="70" rx="12"/><rect x="30" y="165" width="340" height="70" rx="12"/><rect x="30" y="270" width="340" height="70" rx="12"/>
+              <rect x="430" y="60" width="260" height="70" rx="12"/><rect x="430" y="165" width="260" height="70" rx="12"/><rect x="430" y="270" width="260" height="70" rx="12"/>
+              <rect x="750" y="270" width="220" height="70" rx="12"/>
+            </g>
+            <g fill="currentColor">
+              <text x="48" y="90" font-weight="600">pages/ + components/</text><text x="48" y="114" font-size="12.5" opacity=".7">React Router เลือกหน้าตาม URL</text>
+              <text x="48" y="195" font-weight="600">TanStack Query (petApi.ts)</text><text x="48" y="219" font-size="12.5" opacity=".7">เรียก API และเก็บ cache</text>
+              <text x="48" y="300" font-weight="600">Zustand (stores/)</text><text x="48" y="324" font-size="12.5" opacity=".7">ตัวกรอง · รายการโปรด · ธีม · toast</text>
+              <text x="448" y="90" font-weight="600">app.ts</text><text x="448" y="114" font-size="12.5" opacity=".7">cors · express.json() · logger</text>
+              <text x="448" y="195" font-weight="600">routes → controllers</text><text x="448" y="219" font-size="12.5" opacity=".7">ตรวจข้อมูลด้วย Zod</text>
+              <text x="448" y="300" font-weight="600">Prisma Client</text><text x="448" y="324" font-size="12.5" opacity=".7">lib/prisma.ts</text>
+              <text x="768" y="300" font-weight="600">PostgreSQL</text><text x="768" y="324" font-size="12.5" opacity=".7">5 ตาราง · 77 แถวตั้งต้น</text>
+            </g>
+            <g stroke="currentColor" stroke-width="2" fill="none" color="currentColor">
+              <line x1="200" y1="130" x2="200" y2="161" marker-end="url(#ah)"/>
+              <line x1="370" y1="200" x2="426" y2="200" marker-end="url(#ah)"/>
+              <line x1="560" y1="130" x2="560" y2="161" marker-end="url(#ah)"/>
+              <line x1="560" y1="235" x2="560" y2="266" marker-end="url(#ah)"/>
+              <line x1="690" y1="305" x2="746" y2="305" marker-end="url(#ah)"/>
+            </g>
+            <text x="374" y="190" font-size="12" font-weight="700" fill="currentColor">HTTP</text>
+            <text x="700" y="295" font-size="12" font-weight="700" fill="currentColor">SQL</text>
+          </g>
+        </svg>
+      </div>
+      <div class="callout"><strong>จำง่าย ๆ:</strong> ข้อมูลที่มาจากฐานข้อมูล อยู่ใน TanStack Query เท่านั้น ส่วนสิ่งที่เกิดในเบราว์เซอร์อย่างเดียว (ตัวกรอง รายการโปรด ธีม) อยู่ใน Zustand ไม่มีข้อมูลจาก DB ถูกคัดลอกไปเก็บใน Zustand</div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="trace">
+      <h2>ตามรอย 1 Request: ผู้ใช้กด "ส่งคำขอรับเลี้ยง"</h2>
+      <p class="lead">ถ้าอาจารย์ถามว่า "ข้อมูลไหลจาก React ไปถึงฐานข้อมูลอย่างไร" ให้อธิบายตามลำดับนี้</p>
+      <ol class="steps">
+        <li><b>ผู้ใช้กดปุ่มในฟอร์ม</b><span class="file">client/src/features/adoption/components/AdoptionRequestModal.tsx</span>
+          <p><code>handleSubmit</code> ตรวจข้อมูลเบื้องต้นก่อน (ชื่อ อีเมล เบอร์โทร ข้อความ) ถ้าผ่านจึงเรียก <code>mutation.mutate(...)</code></p></li>
+        <li><b>useMutation เรียกฟังก์ชันส่ง API</b><span class="file">client/src/features/adoption/adoptionApi.ts</span>
+<pre>export function useCreateAdoptionRequest() {
+  const invalidate = useInvalidateAdoptionData();
+  return useMutation({ mutationFn: adoptionApi.create, <span class="hl">onSuccess: invalidate</span> });
+}</pre></li>
+        <li><b>apiClient ยิง HTTP POST</b><span class="file">client/src/lib/apiClient.ts</span>
+          <p><code>fetch("http://localhost:3000/api/adoption-requests", { method: "POST", body: JSON })</code> ถ้า Server ตอบ error จะโยน <code>ApiError</code> ที่มี status และ details</p></li>
+        <li><b>Express รับ request</b><span class="file">server/src/app.ts → routes/index.ts → routes/adoptionRequest.routes.ts</span>
+          <p>ผ่าน <code>cors()</code>, <code>express.json()</code> แปลง body เป็น object แล้ว <code>router.post("/", createRequest)</code> ส่งต่อให้ controller</p></li>
+        <li><b>Controller ตรวจข้อมูลด้วย Zod</b><span class="file">server/src/controllers/adoptionRequest.controller.ts + validators/adoptionRequest.schema.ts</span>
+          <p><code>parseWith(adoptionRequestCreateSchema, req.body)</code> ถ้าไม่ผ่านจะตอบ <b>400</b> ทันที พร้อมบอกว่าฟิลด์ไหนผิด</p></li>
+        <li><b>Prisma บันทึกลง PostgreSQL ใน Transaction</b><span class="file">server/src/controllers/adoptionRequest.controller.ts</span>
+<pre>await prisma.$transaction(async (tx) => {
+  const adopter = await tx.adopter.upsert({ where: { email }, ... });  <span class="cm">// มีแล้วอัปเดต ไม่มีสร้างใหม่</span>
+  await tx.adoptionRequest.create({ data: { adopterId, petId, message } });
+  await syncPetStatus(tx, pet.id);  <span class="cm">// สัตว์เปลี่ยนเป็น PENDING</span>
+});</pre>
+          <p>ถ้าคนเดิมขอสัตว์ตัวเดิมซ้ำ PostgreSQL จะปฏิเสธเพราะ <code>@@unique([adopterId, petId])</code> แล้วเราจับ error <code>P2002</code> ตอบ <b>409</b></p></li>
+        <li><b>Server ตอบ 201 Created</b><span class="file">res.status(201).json({ data: created })</span></li>
+        <li><b>หน้าจออัปเดตเองโดยไม่ต้องรีเฟรช</b><span class="file">client/src/features/adoption/adoptionApi.ts</span>
+          <p><code>onSuccess</code> เรียก <code>invalidateQueries</code> ของ requests, pets และ stats ทำให้ TanStack Query ดึงข้อมูลใหม่ หน้ารายละเอียดจึงแสดงสถานะ "รอพิจารณา" ทันที และ toast แจ้งว่าส่งสำเร็จ</p></li>
+      </ol>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="tree">
+      <h2>โครงสร้างโฟลเดอร์</h2>
+      <p class="lead">คลิกชื่อไฟล์เพื่อข้ามไปดูคำอธิบาย</p>
+<pre class="tree">Final Project/
+├─ <b>server/</b>                          <span class="cm"># Backend</span>
+│  ├─ prisma/
+│  │  ├─ <a href="#f-schema">schema.prisma</a>             <span class="cm"># โครงสร้างตาราง</span>
+│  │  ├─ <a href="#f-migrations">migrations/</a>               <span class="cm"># SQL ที่ Prisma Migrate สร้าง</span>
+│  │  └─ <a href="#f-seed">seed.ts</a>                   <span class="cm"># ข้อมูลตั้งต้น 77 รายการ</span>
+│  ├─ src/
+│  │  ├─ <a href="#f-index">index.ts</a>                  <span class="cm"># เริ่มเซิร์ฟเวอร์</span>
+│  │  ├─ <a href="#f-app">app.ts</a>                    <span class="cm"># middleware + mount routes</span>
+│  │  ├─ <a href="#f-libprisma">lib/prisma.ts</a>             <span class="cm"># Prisma Client ตัวเดียว</span>
+│  │  ├─ <a href="#f-routes">routes/</a>                   <span class="cm"># index, pet, adoptionRequest</span>
+│  │  ├─ controllers/
+│  │  │  ├─ <a href="#f-petctrl">pet.controller.ts</a>
+│  │  │  ├─ <a href="#f-reqctrl">adoptionRequest.controller.ts</a>
+│  │  │  └─ <a href="#f-metactrl">meta.controller.ts</a>
+│  │  ├─ <a href="#f-validators">validators/</a>               <span class="cm"># Zod schema</span>
+│  │  ├─ <a href="#f-errorhandler">middlewares/</a>              <span class="cm"># errorHandler, requestLogger</span>
+│  │  ├─ <a href="#f-utils">utils/</a>                    <span class="cm"># HttpError, validate</span>
+│  │  └─ <a href="#f-betypes">types/api.ts</a>              <span class="cm"># รูปแบบ Response</span>
+│  ├─ <a href="#f-prismaconfig">prisma.config.ts</a> · <a href="#f-env">.env</a> · package.json · tsconfig.json
+│
+└─ <b>client/</b>                          <span class="cm"># Frontend</span>
+   ├─ index.html · <a href="#f-vite">vite.config.ts</a>
+   └─ src/
+      ├─ <a href="#f-main">main.tsx</a>                     <span class="cm"># จุดเริ่ม React</span>
+      ├─ <a href="#f-router">router.tsx</a>                   <span class="cm"># เส้นทางทุกหน้า</span>
+      ├─ <a href="#f-css">index.css</a>                    <span class="cm"># Tailwind + ธีม DaisyUI</span>
+      ├─ <a href="#f-types">types/</a>                       <span class="cm"># Type ของข้อมูล</span>
+      ├─ lib/
+      │  ├─ <a href="#f-apiclient">apiClient.ts</a>              <span class="cm"># fetch + ApiError</span>
+      │  ├─ <a href="#f-queryclient">queryClient.ts</a>            <span class="cm"># ตั้งค่า TanStack Query</span>
+      │  ├─ <a href="#f-querykeys">queryKeys.ts</a>              <span class="cm"># ชื่อ cache</span>
+      │  └─ <a href="#f-format">format.ts</a>                 <span class="cm"># แปลงค่าเป็นข้อความไทย</span>
+      ├─ <a href="#f-stores">stores/</a>                      <span class="cm"># Zustand 4 ตัว</span>
+      ├─ features/
+      │  ├─ pets/ <a href="#f-petapi">petApi.ts</a> + <a href="#f-petcomponents">components/</a>
+      │  ├─ adoption/ <a href="#f-adoptionapi">adoptionApi.ts</a> + <a href="#f-modal">AdoptionRequestModal</a>
+      │  └─ meta/ <a href="#f-metaapi">metaApi.ts</a>
+      ├─ <a href="#f-hooks">hooks/useDebouncedValue.ts</a>
+      ├─ components/ <a href="#f-layout">layout/</a> + <a href="#f-ui">ui/</a>
+      └─ pages/ <a href="#f-pages">Home, Pets, PetDetail, Favorites, NotFound</a> + <a href="#f-admin">admin/</a></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <div class="search">
+      <input id="search" type="search" placeholder="ค้นหาไฟล์หรือคำ เช่น invalidateQueries, @@unique, PetForm..." aria-label="ค้นหาในคำอธิบายไฟล์">
+      <div class="hint"><span id="count" class="count"></span> · กดที่ชื่อไฟล์เพื่อเปิดรายละเอียด · <a href="#" id="expandAll">เปิดทั้งหมด</a> · <a href="#" id="collapseAll">ปิดทั้งหมด</a></div>
+    </div>
+
+    <section id="files-db">
+      <h2>Database <span class="tag db">DB</span></h2>
+      <p class="lead">ทุกอย่างเกี่ยวกับฐานข้อมูลอยู่ใน <code>server/prisma/</code></p>
+
+      <details class="file" id="f-schema"><summary><span class="path">server/prisma/schema.prisma</span><span class="tag db">DB</span><span class="role">หัวใจของฐานข้อมูล: กำหนดตาราง ฟิลด์ ความสัมพันธ์ และกฎห้ามซ้ำ</span></summary><div class="body">
+        <h5>มีอะไรในไฟล์</h5>
+        <ul>
+          <li><b>enum</b> 4 ตัว: <code>Gender</code>, <code>PetSize</code>, <code>PetStatus</code> (AVAILABLE/PENDING/ADOPTED), <code>RequestStatus</code></li>
+          <li><b>model</b> 5 ตัว: <code>Species</code>, <code>Shelter</code>, <code>Pet</code>, <code>Adopter</code>, <code>AdoptionRequest</code></li>
+          <li><b>PK</b>: ทุกตารางใช้ <code>id Int @id @default(autoincrement())</code></li>
+          <li><b>FK</b>: <code>Pet.speciesId → Species</code>, <code>Pet.shelterId → Shelter</code>, <code>AdoptionRequest.adopterId → Adopter</code>, <code>AdoptionRequest.petId → Pet</code></li>
+          <li><b>@unique</b>: <code>Species.name</code>, <code>Species.slug</code>, <code>Shelter.name</code>, <code>Adopter.email</code></li>
+          <li><b>@@unique([adopterId, petId])</b>: คนเดียวขอสัตว์ตัวเดิมได้ครั้งเดียว</li>
+          <li><b>onDelete</b>: <code>Restrict</code> ห้ามลบ Species/Shelter ที่ยังมีสัตว์ผูกอยู่, <code>Cascade</code> ลบสัตว์แล้วคำขอของตัวนั้นหายตาม</li>
+          <li><b>@@index</b> บน speciesId, shelterId, status เพื่อให้การกรองเร็วขึ้น</li>
+        </ul>
+<pre>model AdoptionRequest {
+  id        Int           @id @default(autoincrement())
+  status    RequestStatus @default(PENDING)
+  adopterId Int
+  petId     Int
+  adopter   Adopter @relation(fields: [adopterId], references: [id], onDelete: Cascade)
+  pet       Pet     @relation(fields: [petId], references: [id], onDelete: Cascade)
+  <span class="hl">@@unique([adopterId, petId])</span>
+}</pre>
+        <div class="callout"><strong>Prisma 7:</strong> ในไฟล์นี้ไม่มี URL ของฐานข้อมูล เพราะย้ายไปอยู่ใน <code>prisma.config.ts</code> แล้ว</div>
+      </div></details>
+
+      <details class="file" id="f-migrations"><summary><span class="path">server/prisma/migrations/</span><span class="tag db">DB</span><span class="role">ไฟล์ SQL ที่ Prisma Migrate สร้างจาก schema.prisma (CREATE TABLE, FOREIGN KEY, UNIQUE INDEX)</span></summary><div class="body">
+        <ul>
+          <li><code>20261123002444_init/migration.sql</code> คือ SQL จริงที่ใช้สร้างตารางทั้งหมดบน Supabase เปิดให้อาจารย์ดูได้ว่า <code>@@unique</code> กลายเป็น <code>CREATE UNIQUE INDEX</code></li>
+          <li>ห้ามแก้ไฟล์ในนี้ด้วยมือ ถ้าเปลี่ยน schema ให้รัน <code>npx prisma migrate dev --name ชื่อการเปลี่ยนแปลง</code> Prisma จะสร้างโฟลเดอร์ใหม่ให้</li>
+          <li><code>migration_lock.toml</code> บอกว่าใช้ provider postgresql</li>
+        </ul>
+      </div></details>
+
+      <details class="file" id="f-seed"><summary><span class="path">server/prisma/seed.ts</span><span class="tag db">DB</span><span class="role">สคริปต์ใส่ข้อมูลตั้งต้น 77 รายการ (สัตว์ 44, บ้านพักพิง 6, ผู้รับเลี้ยง 10, คำขอ 14, ชนิด 3)</span></summary><div class="body">
+        <h5>ลำดับการทำงานใน main()</h5>
+        <ol>
+          <li>ลบข้อมูลเดิม <b>จากตารางลูกไปตารางแม่</b>: AdoptionRequest → Adopter → Pet → Shelter → Species (ถ้าลบแม่ก่อนจะติด FK)</li>
+          <li>สร้าง Species และ Shelter แล้วเก็บ id ไว้ใน Map/Array</li>
+          <li>วนสร้าง Pet 44 ตัว โดยแปลง <code>species: "dog"</code> เป็น <code>speciesId</code> จริง ใส่รูปจาก placedog.net (สุนัข) และ cataas.com (แมว) ส่วนกระต่ายไม่มีรูป (หน้าเว็บแสดงอีโมจิแทน)</li>
+          <li>ตั้ง <code>createdAt</code> ย้อนหลังกระจายกัน 0-43 วัน เพื่อให้เรียง "มาใหม่ล่าสุด" แล้วสุนัข แมว กระต่ายปนกัน</li>
+          <li>สร้าง Adopter 10 คน และคำขอ 14 รายการ (อ้างอิงสัตว์ด้วยลำดับในอาร์เรย์ <code>petData</code>)</li>
+        </ol>
+        <p>รันด้วย <code>npx prisma db seed</code> (ต้องอยู่ในโฟลเดอร์ server) รันซ้ำกี่ครั้งก็ได้ผลเหมือนเดิม แต่ <b>id จะเริ่มนับต่อจากเดิม</b> ไม่ได้เริ่มที่ 1 ใหม่</p>
+      </div></details>
+
+      <details class="file" id="f-prismaconfig"><summary><span class="path">server/prisma.config.ts</span><span class="tag db">DB</span><span class="role">ตั้งค่า Prisma CLI: ที่อยู่ schema, โฟลเดอร์ migrations, คำสั่ง seed และ URL ฐานข้อมูล</span></summary><div class="body">
+        <p>ใช้ <code>DIRECT_URL</code> สำหรับ migrate (ถ้าไม่มีจะใช้ <code>DATABASE_URL</code>) และกำหนดว่า <code>prisma db seed</code> ให้รัน <code>tsx prisma/seed.ts</code></p>
+      </div></details>
+
+      <details class="file" id="f-env"><summary><span class="path">server/.env และ .env.example</span><span class="tag db">DB</span><span class="role">เก็บ connection string ของ Supabase, PORT และ CLIENT_ORIGIN (ห้ามขึ้น GitHub)</span></summary><div class="body">
+        <ul>
+          <li><code>DATABASE_URL</code> ที่แอปใช้ตอนรัน และ <code>DIRECT_URL</code> ที่ Prisma ใช้ตอน migrate (ของเราใช้ Session pooler พอร์ต 5432 ค่าเดียวกันทั้งคู่)</li>
+          <li><code>.env</code> อยู่ใน <code>.gitignore</code> จึงไม่ขึ้น GitHub ส่วน <code>.env.example</code> เป็นแม่แบบให้เพื่อนคัดลอกไปใส่ค่าเอง</li>
+          <li><code>dotenv</code> โหลดไฟล์นี้ผ่าน <code>import "dotenv/config"</code> ใน index.ts, lib/prisma.ts และ seed.ts</li>
+        </ul>
+      </div></details>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="files-be">
+      <h2>Backend <span class="tag be">BE</span></h2>
+      <p class="lead">Express 5 + TypeScript อยู่ใน <code>server/src/</code> แบ่งชั้นเป็น routes → controllers → Prisma</p>
+
+      <details class="file" id="f-index"><summary><span class="path">server/src/index.ts</span><span class="tag be">BE</span><span class="role">จุดเริ่มของเซิร์ฟเวอร์: โหลด .env แล้ว listen ที่ PORT (ค่าเริ่มต้น 3000)</span></summary><div class="body">
+        <p>ไฟล์สั้นที่สุด แยกออกจาก app.ts เพื่อให้การ "สร้างแอป" กับ "เปิดพอร์ต" ไม่ปนกัน รันด้วย <code>npm run dev</code> ซึ่งใช้ <code>tsx watch</code> แก้โค้ดแล้วรีสตาร์ทเอง</p>
+      </div></details>
+
+      <details class="file" id="f-app"><summary><span class="path">server/src/app.ts</span><span class="tag be">BE</span><span class="role">สร้าง Express app ใส่ middleware ตามลำดับ และ mount routes ทั้งหมดที่ /api</span></summary><div class="body">
+<pre>app.use(cors(allowedOrigins?.length ? { origin: allowedOrigins } : {}));  <span class="cm">// อนุญาตให้ React (5173) เรียก</span>
+app.use(express.json({ limit: "100kb" }));  <span class="cm">// แปลง JSON body เป็น req.body</span>
+app.use(requestLogger);                     <span class="cm">// log: GET /api/pets 200 - 35ms</span>
+app.use("/api", apiRoutes);
+app.use(notFound);      <span class="cm">// เส้นทางที่ไม่มี → 404</span>
+app.use(errorHandler);  <span class="cm">// ต้องอยู่ท้ายสุดเสมอ</span></pre>
+        <div class="callout"><strong>ทำไม errorHandler ต้องอยู่ท้ายสุด:</strong> Express ส่ง error ไปยัง middleware ที่มี 4 parameter ตัวถัดไปตามลำดับที่ <code>use</code> ไว้ ถ้าวางไว้ก่อน routes จะไม่มี error มาถึง</div>
+      </div></details>
+
+      <details class="file" id="f-libprisma"><summary><span class="path">server/src/lib/prisma.ts</span><span class="tag be">BE</span><span class="role">สร้าง PrismaClient ตัวเดียวใช้ทั้งโปรเจกต์ ผ่าน Driver Adapter ของ Prisma 7 (@prisma/adapter-pg)</span></summary><div class="body">
+        <p>ถ้าไม่มี <code>DATABASE_URL</code> จะ throw ตั้งแต่เริ่ม ทุก controller <code>import { prisma } from "../lib/prisma"</code> แล้วเรียกเช่น <code>prisma.pet.findMany()</code> ซึ่งมี Type ตรงกับ schema ทุกฟิลด์</p>
+      </div></details>
+
+      <details class="file" id="f-routes"><summary><span class="path">server/src/routes/ (index.ts, pet.routes.ts, adoptionRequest.routes.ts)</span><span class="tag be">BE</span><span class="role">จับคู่ Method + URL กับฟังก์ชันใน controller</span></summary><div class="body">
+        <div class="table-wrap"><table>
+          <tr><th>Method</th><th>Path</th><th>Controller</th><th>Status</th></tr>
+          <tr><td>GET</td><td><code>/api/health</code></td><td>(เขียนไว้ใน routes/index.ts)</td><td>200</td></tr>
+          <tr><td>GET</td><td><code>/api/stats</code>, <code>/api/species</code>, <code>/api/shelters</code></td><td>meta.controller</td><td>200</td></tr>
+          <tr><td>GET</td><td><code>/api/pets</code></td><td>listPets</td><td>200, 400</td></tr>
+          <tr><td>GET</td><td><code>/api/pets/:id</code></td><td>getPet</td><td>200, 400, 404</td></tr>
+          <tr><td>POST</td><td><code>/api/pets</code></td><td>createPet</td><td>201, 400</td></tr>
+          <tr><td>PUT</td><td><code>/api/pets/:id</code></td><td>replacePet (ส่งครบทุกฟิลด์)</td><td>200, 400, 404</td></tr>
+          <tr><td>PATCH</td><td><code>/api/pets/:id</code></td><td>updatePet (ส่งบางฟิลด์)</td><td>200, 400, 404</td></tr>
+          <tr><td>DELETE</td><td><code>/api/pets/:id</code></td><td>deletePet</td><td>204, 404</td></tr>
+          <tr><td>GET</td><td><code>/api/adoption-requests</code></td><td>listRequests</td><td>200</td></tr>
+          <tr><td>POST</td><td><code>/api/adoption-requests</code></td><td>createRequest</td><td>201, 400, 404, 409</td></tr>
+          <tr><td>PATCH</td><td><code>/api/adoption-requests/:id/status</code></td><td>updateRequestStatus</td><td>200, 400, 404</td></tr>
+          <tr><td>DELETE</td><td><code>/api/adoption-requests/:id</code></td><td>deleteRequest</td><td>204, 404</td></tr>
+        </table></div>
+      </div></details>
+
+      <details class="file" id="f-petctrl"><summary><span class="path">server/src/controllers/pet.controller.ts</span><span class="tag be">BE</span><span class="role">CRUD ของสัตว์ทั้ง 6 ฟังก์ชัน + แปลง query string เป็นเงื่อนไขค้นหา</span></summary><div class="body">
+        <h5>ส่วนสำคัญ</h5>
+        <ul>
+          <li><code>petListInclude</code> / <code>petDetailInclude</code>: บอก Prisma ให้ join species, shelter และนับจำนวนคำขอ (<code>_count</code>) มาด้วย Type ของผลลัพธ์ได้จาก <code>Prisma.PetGetPayload</code> อัตโนมัติ</li>
+          <li><code>buildWhere(query)</code>: แปลง <code>?speciesId=2&amp;status=AVAILABLE&amp;search=ส้ม</code> เป็น <code>where</code> ของ Prisma ค้นหาแบบไม่สนตัวพิมพ์ใหญ่เล็กในชื่อ สายพันธุ์ และสี</li>
+          <li><code>listPets</code>: ใช้ <code>prisma.$transaction([findMany, count])</code> ได้ทั้งรายการและจำนวนรวมในครั้งเดียว ตอบ <code>{ data, meta: { total } }</code></li>
+          <li><code>getPet</code>: ไม่เจอ → <code>throw new HttpError(404, ...)</code></li>
+          <li><code>createPet</code> ตอบ <b>201</b>, <code>deletePet</code> ตอบ <b>204</b> (ไม่มี body)</li>
+          <li><code>replacePet</code> (PUT) ใช้ schema เต็ม ส่วน <code>updatePet</code> (PATCH) ใช้ schema แบบ partial</li>
+        </ul>
+        <div class="callout"><strong>ไม่ต้องเขียน try/catch:</strong> Express 5 ส่ง error จาก async function ไปที่ errorHandler ให้อัตโนมัติ เช่น update id ที่ไม่มี Prisma โยน P2025 แล้ว errorHandler แปลงเป็น 404</div>
+      </div></details>
+
+      <details class="file" id="f-reqctrl"><summary><span class="path">server/src/controllers/adoptionRequest.controller.ts</span><span class="tag be">BE</span><span class="role">คำขอรับเลี้ยง: สร้าง อนุมัติ/ปฏิเสธ ลบ และปรับสถานะสัตว์ให้ตรงกันใน Transaction</span></summary><div class="body">
+        <ul>
+          <li><code>syncPetStatus(tx, petId)</code>: นับคำขอของสัตว์ตัวนั้น มีที่อนุมัติแล้ว → ADOPTED, มีที่รออยู่ → PENDING, ไม่มีเลย → AVAILABLE</li>
+          <li><code>createRequest</code>: เช็กว่าสัตว์มีอยู่ (ไม่มี → 404) และยังไม่ได้บ้าน (ได้บ้านแล้ว → 409) จากนั้น upsert ผู้รับเลี้ยงด้วยอีเมล สร้างคำขอ และ sync สถานะ ทั้งหมดใน <code>$transaction</code></li>
+          <li>ถ้าเจอ <code>P2002</code> (ชน <code>@@unique</code>) ตอบ <b>409</b> "อีเมลนี้ได้ส่งคำขอรับเลี้ยงน้องตัวนี้ไปแล้ว"</li>
+          <li><code>updateRequestStatus</code>: ถ้า APPROVED จะปฏิเสธคำขออื่นที่รออยู่ของสัตว์ตัวเดียวกันด้วย <code>updateMany</code> อัตโนมัติ</li>
+          <li><code>deleteRequest</code>: ลบแล้ว sync สถานะสัตว์ใหม่</li>
+        </ul>
+        <div class="callout"><strong>ทำไมต้องใช้ Transaction:</strong> หลายคำสั่งต้องสำเร็จพร้อมกัน ถ้าคำสั่งไหนพัง ทุกอย่างย้อนกลับ ข้อมูลจึงไม่ค้างครึ่ง ๆ กลาง ๆ เช่น สร้างคำขอแล้วแต่สถานะสัตว์ไม่เปลี่ยน</div>
+      </div></details>
+
+      <details class="file" id="f-metactrl"><summary><span class="path">server/src/controllers/meta.controller.ts</span><span class="tag be">BE</span><span class="role">ข้อมูลประกอบ: รายการชนิดสัตว์ บ้านพักพิง และตัวเลขสถิติหน้าแรก</span></summary><div class="body">
+        <p><code>getStats</code> ใช้ <code>prisma.pet.groupBy({ by: ["status"] })</code> นับสัตว์แต่ละสถานะในคำสั่งเดียว แล้วรวมกับจำนวนบ้านพักพิงและคำขอที่รอพิจารณา (ใช้ <code>Promise.all</code> ให้ query ทำงานพร้อมกัน)</p>
+      </div></details>
+
+      <details class="file" id="f-validators"><summary><span class="path">server/src/validators/ (pet.schema.ts, adoptionRequest.schema.ts)</span><span class="tag be">BE</span><span class="role">กฎตรวจข้อมูลด้วย Zod ก่อนบันทึก พร้อมข้อความ error ภาษาไทย</span></summary><div class="body">
+        <ul>
+          <li><code>petCreateSchema</code>: ชื่อ 1-50 ตัวอักษร, อายุ 0-360 เดือนและเป็นจำนวนเต็ม, gender/size/status ต้องเป็นค่าใน enum, description อย่างน้อย 10 ตัวอักษร, imageUrl ต้องเป็น URL หรือว่าง</li>
+          <li><code>petPatchSchema</code>: เหมือนข้างบนแต่ทุกฟิลด์ไม่บังคับ (<code>.partial()</code>) และต้องส่งอย่างน้อย 1 ฟิลด์</li>
+          <li><code>petQuerySchema</code>: ตรวจ query string และแปลงชนิด เช่น <code>z.coerce.number()</code> แปลง <code>"2"</code> เป็น <code>2</code>, <code>ids=1,2,3</code> เป็น <code>[1,2,3]</code></li>
+          <li><code>adoptionRequestCreateSchema</code>: อีเมลถูก trim และแปลงเป็นตัวเล็กก่อนตรวจรูปแบบ, เบอร์โทรต้องตรงรูปแบบ <code>081-234-5678</code></li>
+        </ul>
+        <p>Type ของข้อมูลที่ผ่านแล้วได้จาก <code>z.output&lt;typeof schema&gt;</code> จึงไม่ต้องเขียน interface ซ้ำ</p>
+      </div></details>
+
+      <details class="file" id="f-utils"><summary><span class="path">server/src/utils/ (HttpError.ts, validate.ts)</span><span class="tag be">BE</span><span class="role">ตัวช่วย: Error ที่ระบุ status code ได้ และฟังก์ชันตรวจข้อมูลกับ id</span></summary><div class="body">
+        <ul>
+          <li><code>HttpError(status, message, details?)</code>: ใช้ <code>throw new HttpError(404, "...")</code> ได้ทุกที่ใน controller</li>
+          <li><code>parseWith(schema, input)</code>: ถ้าไม่ผ่าน Zod จะโยน HttpError 400 พร้อม <code>details: [{ field, message }]</code></li>
+          <li><code>parseId(req.params.id)</code>: id ต้องเป็นจำนวนเต็มบวก ไม่งั้นตอบ 400 (เช่น <code>/api/pets/abc</code>)</li>
+        </ul>
+      </div></details>
+
+      <details class="file" id="f-errorhandler"><summary><span class="path">server/src/middlewares/ (errorHandler.ts, requestLogger.ts)</span><span class="tag be">BE</span><span class="role">จัดการ error กลาง ส่ง status code ที่ถูกต้อง และ log ทุก request</span></summary><div class="body">
+        <div class="table-wrap"><table>
+          <tr><th>Error ที่เกิด</th><th>ตอบกลับ</th></tr>
+          <tr><td><code>HttpError</code> ที่เราโยนเอง</td><td>status ตามที่กำหนด</td></tr>
+          <tr><td>Prisma <code>P2025</code> ไม่พบแถวที่จะ update/delete</td><td>404</td></tr>
+          <tr><td>Prisma <code>P2002</code> ข้อมูลซ้ำ @unique / @@unique</td><td>409</td></tr>
+          <tr><td>Prisma <code>P2003</code> FK ไม่ถูกต้อง (เช่น speciesId ที่ไม่มี)</td><td>400</td></tr>
+          <tr><td>ต่อฐานข้อมูลไม่ได้ (<code>ECONNREFUSED</code>, <code>P1001</code>)</td><td>503</td></tr>
+          <tr><td>JSON ผิดรูปแบบ</td><td>400</td></tr>
+          <tr><td>อื่น ๆ ที่ไม่คาดคิด</td><td>500 (และ log ใน console)</td></tr>
+        </table></div>
+        <p>ทุกกรณีตอบรูปแบบเดียวกัน: <code>{ "error": { "message": "...", "details": [...] } }</code></p>
+      </div></details>
+
+      <details class="file" id="f-betypes"><summary><span class="path">server/src/types/api.ts</span><span class="tag be">BE</span><span class="role">Interface ของ Response: ApiSuccess, ApiList, ApiErrorBody</span></summary><div class="body">
+        <p>Controller ประกาศ <code>res: Response&lt;ApiSuccess&lt;PetDetail&gt;&gt;</code> ถ้าส่งข้อมูลผิดรูปแบบ TypeScript จะแจ้ง error ตั้งแต่ตอนเขียนโค้ด</p>
+      </div></details>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="files-fe">
+      <h2>Frontend <span class="tag fe">FE</span> <span class="tag ui">UI</span></h2>
+      <p class="lead">React 19 + TypeScript อยู่ใน <code>client/src/</code> แยกตามหน้าที่: pages, features, stores, lib, components</p>
+
+      <h3>จุดเริ่มและการตั้งค่า</h3>
+      <details class="file" id="f-main"><summary><span class="path">client/src/main.tsx</span><span class="tag fe">FE</span><span class="role">จุดเริ่มของ React: ครอบแอปด้วย QueryClientProvider และ RouterProvider</span></summary><div class="body">
+<pre>createRoot(rootElement).render(
+  &lt;QueryClientProvider client={queryClient}&gt;   <span class="cm">// ทุกหน้าใช้ TanStack Query ได้</span>
+    &lt;RouterProvider router={router} /&gt;         <span class="cm">// React Router v7</span>
+  &lt;/QueryClientProvider&gt;
+);</pre>
+      </div></details>
+
+      <details class="file" id="f-router"><summary><span class="path">client/src/router.tsx</span><span class="tag fe">FE</span><span class="role">ประกาศทุกเส้นทางด้วย createBrowserRouter (Nested Routes + 404 + errorElement)</span></summary><div class="body">
+        <ul>
+          <li><code>/</code> ใช้ <code>RootLayout</code> ครอบทุกหน้า (Navbar + Footer + Toaster) แล้วหน้าลูกแสดงใน <code>&lt;Outlet /&gt;</code></li>
+          <li><code>/pets/:id</code> คือ Dynamic Route หน้า PetDetailPage อ่าน id ด้วย <code>useParams()</code></li>
+          <li><code>/admin</code> มี <code>AdminLayout</code> ซ้อนอีกชั้น index route ใช้ <code>&lt;Navigate to="pets" replace /&gt;</code> พาไป /admin/pets</li>
+          <li><code>/admin/pets/new</code> และ <code>/admin/pets/:id/edit</code> ใช้หน้าเดียวกัน (AdminPetFormPage) ดูว่ามี id หรือไม่</li>
+          <li><code>path: "*"</code> คือหน้า 404 และ <code>errorElement</code> กันหน้าจอขาวเมื่อ render พัง</li>
+        </ul>
+      </div></details>
+
+      <details class="file" id="f-css"><summary><span class="path">client/src/index.css</span><span class="tag ui">UI</span><span class="role">Tailwind CSS v4 + DaisyUI v5 และธีมสีของเว็บเอง (matchapaw สว่าง / matchapaw-dark มืด)</span></summary><div class="body">
+        <p>ใช้ <code>@plugin "daisyui/theme"</code> กำหนดสีเป็นโทนมัทฉะ (primary สีเขียว, secondary สีส้มพีช) ถ้าอยากเปลี่ยนสีทั้งเว็บ แก้ <code>--color-primary</code> ที่นี่ที่เดียว ฟอนต์ Prompt โหลดจาก Google Fonts ใน <code>index.html</code></p>
+      </div></details>
+
+      <details class="file" id="f-vite"><summary><span class="path">client/vite.config.ts, index.html, tsconfig*.json</span><span class="tag fe">FE</span><span class="role">ตั้งค่า Vite (plugin React + Tailwind, port 5173) และ TypeScript แบบ strict</span></summary><div class="body">
+        <p><code>tsconfig.app.json</code> เปิด <code>strict</code>, <code>noUnusedLocals</code>, <code>noUnusedParameters</code> ไว้ คำสั่ง <code>npm run build</code> จะรัน <code>tsc -b</code> ก่อน ถ้ามี Type ผิดจะ build ไม่ผ่าน</p>
+      </div></details>
+
+      <details class="file" id="f-types"><summary><span class="path">client/src/types/ (models.ts, api.ts)</span><span class="tag fe">FE</span><span class="role">Type ของข้อมูลทุกตัวที่ได้จาก API ตรงกับ schema.prisma</span></summary><div class="body">
+        <ul>
+          <li>ค่าคงที่ <code>GENDERS</code>, <code>PET_SIZES</code>, <code>PET_STATUSES</code> แล้วสร้าง Type จากค่าเหล่านั้น เช่น <code>type Gender = (typeof GENDERS)[number]</code> ใช้ทั้งเป็น Type และเป็นตัวเลือกใน <code>&lt;select&gt;</code></li>
+          <li><code>Pet</code> (หน้ารายการ, shelter แบบย่อ) กับ <code>PetDetail</code> (หน้ารายละเอียด, shelter แบบเต็ม)</li>
+          <li><code>PetInput</code> ข้อมูลที่ส่งตอนเพิ่ม/แก้ไข, <code>PetFilters</code> รูปแบบตัวกรองใน Zustand</li>
+        </ul>
+      </div></details>
+
+      <h3>lib/: เครื่องมือกลาง</h3>
+      <details class="file" id="f-apiclient"><summary><span class="path">client/src/lib/apiClient.ts</span><span class="tag fe">FE</span><span class="role">ห่อ fetch ให้ทุกการเรียก API: ตั้ง URL, แปลง JSON, และโยน ApiError เมื่อ Server ตอบ error</span></summary><div class="body">
+        <ul>
+          <li><code>BASE_URL</code> อ่านจาก <code>VITE_API_URL</code> ถ้าไม่ตั้งใช้ <code>http://localhost:3000/api</code></li>
+          <li>ถ้า fetch ล้มเหลว (เซิร์ฟเวอร์ไม่ได้เปิด) โยน <code>ApiError</code> status 0 "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้"</li>
+          <li>status 204 คืนค่า undefined (เช่นตอนลบ)</li>
+          <li><code>ApiError.fieldErrors</code> แปลง details เป็น <code>{ name: "กรุณากรอกชื่อ" }</code> เพื่อแสดงใต้ช่องกรอกในฟอร์ม</li>
+          <li><code>toQueryString()</code> สร้าง <code>?a=1&amp;b=2</code> โดยข้ามค่าว่างและ null</li>
+        </ul>
+      </div></details>
+
+      <details class="file" id="f-queryclient"><summary><span class="path">client/src/lib/queryClient.ts</span><span class="tag fe">FE</span><span class="role">ตั้งค่า TanStack Query ทั้งแอป: staleTime 30 วินาที และไม่ retry เมื่อเป็น error 4xx</span></summary><div class="body">
+        <ul>
+          <li><code>staleTime: 30_000</code> ข้อมูลที่เพิ่งโหลดภายใน 30 วินาทีถือว่ายังสด จะไม่ยิง API ซ้ำเมื่อกลับมาหน้าเดิม</li>
+          <li><code>retry</code>: ถ้า 404/400 ไม่ลองซ้ำ (ลองไปก็ได้ผลเดิม) แต่ถ้าเป็นปัญหาเครือข่ายลองซ้ำได้ 2 ครั้ง</li>
+          <li><code>refetchOnWindowFocus: false</code> ไม่โหลดใหม่ทุกครั้งที่สลับแท็บ</li>
+        </ul>
+      </div></details>
+
+      <details class="file" id="f-querykeys"><summary><span class="path">client/src/lib/queryKeys.ts</span><span class="tag fe">FE</span><span class="role">รวมชื่อ cache (queryKey) ทุกตัวไว้ที่เดียว เพื่อ invalidate ได้ถูกต้อง</span></summary><div class="body">
+<pre>pets: {
+  all: ["pets"],                               <span class="cm">// invalidate ตัวนี้ = ล้าง cache ทุกอย่างของ pets</span>
+  list: (params) => ["pets", "list", params],  <span class="cm">// ตัวกรองต่างกัน = cache ต่างกัน</span>
+  detail: (id) => ["pets", "detail", id],
+}</pre>
+        <p>เพราะ key ขึ้นต้นด้วย <code>"pets"</code> เหมือนกัน การ <code>invalidateQueries({ queryKey: ["pets"] })</code> จึงรีเฟรชทั้งหน้ารายการและหน้ารายละเอียดพร้อมกัน</p>
+      </div></details>
+
+      <details class="file" id="f-format"><summary><span class="path">client/src/lib/format.ts</span><span class="tag fe">FE</span><span class="role">แปลงค่าจาก DB เป็นข้อความไทย: อายุ วันที่ ป้ายสถานะ อีโมจิ</span></summary><div class="body">
+        <p><code>formatAge(30)</code> → "2 ปี 6 เดือน", <code>petStatusMeta.AVAILABLE</code> → { label: "พร้อมหาบ้าน", badge: "badge-success" }, <code>isOneOf()</code> ตรวจค่าจาก <code>&lt;select&gt;</code> ให้ตรง Type โดยไม่ต้องใช้ <code>as</code></p>
+      </div></details>
+
+      <details class="file" id="f-hooks"><summary><span class="path">client/src/hooks/useDebouncedValue.ts</span><span class="tag fe">FE</span><span class="role">หน่วงค่าช่องค้นหา 350ms เพื่อไม่ยิง API ทุกครั้งที่พิมพ์ 1 ตัวอักษร</span></summary><div class="body">
+        <p>ใช้ <code>setTimeout</code> ใน <code>useEffect</code> และล้าง timer เมื่อค่าเปลี่ยนก่อนครบเวลา ใช้ในหน้า /pets และหน้า Admin</p>
+      </div></details>
+
+      <h3>stores/: Zustand (Client State)</h3>
+      <details class="file" id="f-stores"><summary><span class="path">client/src/stores/ (favoriteStore, filterStore, themeStore, toastStore)</span><span class="tag fe">FE</span><span class="role">state ที่เกิดในเบราว์เซอร์เท่านั้น ไม่มีข้อมูลจากฐานข้อมูลอยู่ในนี้</span></summary><div class="body">
+        <div class="table-wrap"><table>
+          <tr><th>Store</th><th>เก็บอะไร</th><th>persist?</th><th>ใช้ที่ไหน</th></tr>
+          <tr><td><code>favoriteStore</code></td><td><code>ids: number[]</code> รหัสสัตว์ที่กดหัวใจ + toggle/remove/clear</td><td>✓ key <code>matchapaw-favorites</code></td><td>FavoriteButton, Navbar (นับ), FavoritesPage, Admin (ลบแล้วเอาออก)</td></tr>
+          <tr><td><code>filterStore</code></td><td>ตัวกรองหน้า /pets: search, speciesId, gender, size, status, sort</td><td>-</td><td>PetFilters, PetsPage, HomePage (กดชนิดสัตว์แล้วตั้งตัวกรองให้)</td></tr>
+          <tr><td><code>themeStore</code></td><td>ธีมสว่าง/มืด</td><td>✓ key <code>matchapaw-theme</code></td><td>Navbar (ปุ่ม), RootLayout (ใส่ data-theme)</td></tr>
+          <tr><td><code>toastStore</code></td><td>ข้อความแจ้งเตือน หายเองใน 3.5 วินาที</td><td>-</td><td>Toaster และทุกที่ที่เรียก <code>show()</code></td></tr>
+        </table></div>
+<pre>export const useFavoriteStore = create&lt;FavoriteState&gt;()(
+  <span class="hl">persist(</span>
+    (set) => ({
+      ids: [],
+      toggle: (id) => set((state) => ({
+        ids: state.ids.includes(id) ? state.ids.filter((x) => x !== id) : [...state.ids, id],
+      })),
+      ...
+    }),
+    <span class="hl">{ name: "matchapaw-favorites" }</span>,  <span class="cm">// ชื่อ key ใน localStorage</span>
+  ),
+);</pre>
+        <div class="callout"><strong>ทำไมเก็บแค่ id:</strong> ถ้าเก็บข้อมูลสัตว์ทั้งก้อน เมื่อ Admin แก้ชื่อหรือสถานะ ข้อมูลในรายการโปรดจะเก่า (State Desync) เราจึงเก็บ id แล้วให้ FavoritesPage ดึงข้อมูลจริงด้วย <code>GET /api/pets?ids=1,2,3</code></div>
+      </div></details>
+
+      <h3>features/: TanStack Query hooks และ component ของแต่ละฟีเจอร์</h3>
+      <details class="file" id="f-petapi"><summary><span class="path">client/src/features/pets/petApi.ts</span><span class="tag fe">FE</span><span class="role">ทุกอย่างเกี่ยวกับข้อมูลสัตว์: ฟังก์ชันเรียก API + useQuery + useMutation</span></summary><div class="body">
+        <ul>
+          <li><code>petApi</code>: list, get, create, replace (PUT), patch (PATCH), remove</li>
+          <li><code>usePets(params)</code>: params เป็นส่วนหนึ่งของ queryKey เปลี่ยนตัวกรองเมื่อไรจะดึงข้อมูลใหม่เอง และใช้ <code>placeholderData: keepPreviousData</code> ให้ผลเดิมค้างไว้ระหว่างโหลด ไม่กระพริบ</li>
+          <li><code>usePet(id)</code>: <code>enabled</code> เฉพาะเมื่อ id เป็นตัวเลขที่ถูกต้อง</li>
+          <li><code>useCreatePet</code>, <code>useUpdatePet</code>, <code>usePatchPet</code>, <code>useDeletePet</code>: ทุกตัวเรียก <code>invalidateQueries</code> ใน onSuccess = <b>Zero-Refresh</b></li>
+        </ul>
+<pre>function useInvalidatePetData() {
+  const queryClient = useQueryClient();
+  return () => Promise.all([
+    <span class="hl">queryClient.invalidateQueries({ queryKey: queryKeys.pets.all })</span>,
+    queryClient.invalidateQueries({ queryKey: queryKeys.stats }),
+    ...
+  ]);
+}</pre>
+      </div></details>
+
+      <details class="file" id="f-adoptionapi"><summary><span class="path">client/src/features/adoption/adoptionApi.ts</span><span class="tag fe">FE</span><span class="role">hooks ของคำขอรับเลี้ยง: useAdoptionRequests, useCreateAdoptionRequest, useUpdateRequestStatus, useDeleteAdoptionRequest</span></summary><div class="body">
+        <p>เพราะคำขอทำให้สถานะสัตว์เปลี่ยน onSuccess จึง invalidate ทั้ง <code>adoption-requests</code>, <code>pets</code> และ <code>stats</code></p>
+      </div></details>
+
+      <details class="file" id="f-metaapi"><summary><span class="path">client/src/features/meta/metaApi.ts</span><span class="tag fe">FE</span><span class="role">useSpecies, useShelters (staleTime 10 นาที เพราะแทบไม่เปลี่ยน) และ useStats</span></summary><div class="body">
+        <p>ใช้ใน dropdown ของตัวกรองและฟอร์ม และตัวเลขสถิติหน้าแรก</p>
+      </div></details>
+
+      <details class="file" id="f-petcomponents"><summary><span class="path">client/src/features/pets/components/</span><span class="tag fe">FE</span><span class="role">PetCard, PetFilters, PetForm, PetImage, FavoriteButton, PetStatusBadge</span></summary><div class="body">
+        <div class="table-wrap"><table>
+          <tr><th>Component</th><th>หน้าที่</th></tr>
+          <tr><td><code>PetCard.tsx</code></td><td>การ์ดสัตว์ 1 ใบ + <code>PetCardSkeleton</code> (โครงเทาระหว่างโหลด) + <code>PetGrid</code> (grid responsive 1→4 คอลัมน์ ถ้า isLoading แสดง skeleton)</td></tr>
+          <tr><td><code>PetFilters.tsx</code></td><td>ช่องค้นหาและ select ทั้งหมด อ่าน/เขียนค่าใน filterStore โดยตรง ปุ่ม "ล้างตัวกรอง" โผล่เมื่อค่าไม่ใช่ค่าเริ่มต้น</td></tr>
+          <tr><td><code>PetForm.tsx</code></td><td>ฟอร์มเพิ่ม/แก้ไขสัตว์ ใช้ร่วมกันทั้งสองหน้า: ค่าในฟอร์มเก็บเป็น string ระหว่างพิมพ์ (<code>PetFormValues</code>) แล้ว <code>toInput()</code> แปลงเป็นตัวเลขตอนส่ง, <code>validate()</code> ตรวจฝั่ง client และแสดง error จาก server ด้วย <code>ApiError.fieldErrors</code>, มีตัวอย่างรูป</td></tr>
+          <tr><td><code>PetImage.tsx</code></td><td>แสดงรูป ถ้าไม่มี URL หรือโหลดไม่ได้ (<code>onError</code>) แสดงอีโมจิตามชนิดแทน ไม่มีรูปแตก</td></tr>
+          <tr><td><code>FavoriteButton.tsx</code></td><td>ปุ่มหัวใจ เรียก <code>toggle(petId)</code> ใน favoriteStore และแสดง toast มี 2 แบบ: ไอคอน (บนการ์ด) และเต็ม (หน้ารายละเอียด)</td></tr>
+          <tr><td><code>PetStatusBadge.tsx</code></td><td>ป้ายสถานะสีตาม <code>petStatusMeta</code></td></tr>
+        </table></div>
+      </div></details>
+
+      <details class="file" id="f-modal"><summary><span class="path">client/src/features/adoption/components/AdoptionRequestModal.tsx</span><span class="tag fe">FE</span><span class="role">ฟอร์มขอรับเลี้ยงใน modal: ตรวจข้อมูล ส่ง API แสดง error 409 และ toast เมื่อสำเร็จ</span></summary><div class="body">
+        <p>ถ้า error มี details ของฟิลด์ (400) จะแสดงใต้ช่อง ถ้าไม่มี (เช่น 409 ส่งซ้ำ) จะแสดงเป็น ErrorAlert ด้านบนฟอร์ม ปุ่มส่ง disabled และหมุน spinner ระหว่าง <code>mutation.isPending</code></p>
+      </div></details>
+
+      <h3>components/: ส่วนที่ใช้ซ้ำทุกหน้า</h3>
+      <details class="file" id="f-layout"><summary><span class="path">client/src/components/layout/ (RootLayout.tsx, Navbar.tsx)</span><span class="tag ui">UI</span><span class="role">โครงหลักของทุกหน้า: Navbar ด้านบน, Outlet ตรงกลาง, Footer, Toaster</span></summary><div class="body">
+        <ul>
+          <li><code>RootLayout</code>: <code>useEffect</code> นำธีมจาก themeStore ไปใส่ <code>&lt;html data-theme&gt;</code> และมี <code>&lt;ScrollRestoration /&gt;</code></li>
+          <li><code>Navbar</code>: <code>NavLink</code> ไฮไลต์หน้าปัจจุบัน, badge นับรายการโปรดจาก favoriteStore, ปุ่มสลับธีม, เมนู dropdown บนมือถือ</li>
+        </ul>
+      </div></details>
+
+      <details class="file" id="f-ui"><summary><span class="path">client/src/components/ui/ (ErrorAlert, EmptyState, Toaster, ConfirmDialog, Icons)</span><span class="tag ui">UI</span><span class="role">ชิ้นส่วน UI ที่ใช้ซ้ำ</span></summary><div class="body">
+        <ul>
+          <li><code>ErrorAlert</code>: แสดงข้อความ error + ปุ่ม "ลองใหม่" (เรียก <code>refetch()</code>) ใช้ทุกหน้าที่โหลดข้อมูล = เกณฑ์ isError</li>
+          <li><code>EmptyState</code>: เมื่อค้นหาไม่เจอหรือรายการโปรดว่าง</li>
+          <li><code>Toaster</code>: อ่าน toastStore แล้วแสดงมุมขวาล่าง</li>
+          <li><code>ConfirmDialog</code>: ถามก่อนลบ (กันกดพลาด)</li>
+          <li><code>Icons</code>: ไอคอน SVG ที่เขียนเอง ไม่ต้องติดตั้ง library เพิ่ม</li>
+        </ul>
+      </div></details>
+
+      <h3>pages/: หน้าเว็บ</h3>
+      <details class="file" id="f-pages"><summary><span class="path">client/src/pages/ (HomePage, PetsPage, PetDetailPage, FavoritesPage, NotFoundPage)</span><span class="tag fe">FE</span><span class="role">หน้าฝั่งผู้ใช้ทั่วไป</span></summary><div class="body">
+        <div class="table-wrap"><table>
+          <tr><th>หน้า</th><th>ดึงข้อมูลด้วย</th><th>จุดเด่นที่ควรเล่า</th></tr>
+          <tr><td><code>HomePage</code> <code>/</code></td><td>useStats, useSpecies, usePets (limit 8)</td><td>กดการ์ดชนิดสัตว์ → <code>setFilter("speciesId")</code> ใน Zustand แล้ว navigate ไป /pets หน้านั้นอ่านค่าเดียวกัน (ตัวอย่าง state ข้ามหน้า)</td></tr>
+          <tr><td><code>PetsPage</code> <code>/pets</code></td><td>usePets(ตัวกรองจาก Zustand)</td><td>Master page: debounce คำค้น, แสดงจำนวนผลลัพธ์, spinner ตอนกำลังอัปเดต, EmptyState เมื่อไม่พบ</td></tr>
+          <tr><td><code>PetDetailPage</code> <code>/pets/:id</code></td><td>usePet(id)</td><td>Dynamic page: id ไม่ถูกต้องหรือ 404 แสดง "ไม่พบน้องตัวนี้", มี skeleton เฉพาะหน้า, เปิด AdoptionRequestModal, ปุ่มขอรับเลี้ยง disabled เมื่อได้บ้านแล้ว</td></tr>
+          <tr><td><code>FavoritesPage</code> <code>/favorites</code></td><td>usePets({ ids }) เมื่อมีรายการ</td><td>กรองซ้ำฝั่ง client ด้วย ids ให้การ์ดหายทันทีเมื่อกดเอาหัวใจออก</td></tr>
+          <tr><td><code>NotFoundPage</code></td><td>-</td><td>มี <code>RouteErrorPage</code> ใช้ <code>useRouteError()</code> แสดงเมื่อ render พัง</td></tr>
+        </table></div>
+      </div></details>
+
+      <details class="file" id="f-admin"><summary><span class="path">client/src/pages/admin/ (AdminLayout, AdminPetsPage, AdminPetFormPage, AdminRequestsPage)</span><span class="tag fe">FE</span><span class="role">หน้าจัดการระบบสำหรับเจ้าหน้าที่ (Phase 1 ยังไม่มีล็อกอิน)</span></summary><div class="body">
+        <ul>
+          <li><code>AdminLayout</code>: แท็บ 2 อันด้วย NavLink + <code>&lt;Outlet /&gt;</code></li>
+          <li><code>AdminPetsPage</code>: ตาราง ค้นหา กรองสถานะ (state ในหน้าเอง), เปลี่ยนสถานะใน select = <code>usePatchPet</code> (PATCH), ลบผ่าน ConfirmDialog = <code>useDeletePet</code> แล้ว <code>removeFavorite(id)</code> ออกจาก Zustand ด้วย, ซ่อนบางคอลัมน์บนจอเล็ก</li>
+          <li><code>AdminPetFormPage</code>: มี <code>:id</code> = โหมดแก้ไข (โหลดด้วย usePet แล้ว <code>toFormValues</code>), ไม่มี = โหมดเพิ่ม ใช้ <code>key</code> บน PetForm ให้ฟอร์มรีเซ็ตเมื่อข้อมูลมาถึง สำเร็จแล้ว toast + navigate กลับ</li>
+          <li><code>AdminRequestsPage</code>: แท็บกรองสถานะ, ปุ่มอนุมัติ/ปฏิเสธ/ลบ ปิดปุ่มเฉพาะแถวที่กำลังทำงาน (<code>updateStatus.variables.id</code>)</li>
+        </ul>
+      </div></details>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="live">
+      <h2>แก้โค้ดสดในคาบ: ถ้าอาจารย์สั่งแบบนี้ ต้องแก้ไฟล์ไหน</h2>
+      <p class="lead">ในคาบใช้ AI chat ถามได้ แต่ห้ามใช้ AI agent แก้โค้ด ฝึกทำตามขั้นตอนเหล่านี้ไว้ก่อน</p>
+
+      <h3>1. เพิ่มฟิลด์ใหม่ในสัตว์ เช่น น้ำหนัก (weightKg)</h3>
+      <ol class="steps">
+        <li><b>schema.prisma</b><span class="file">server/prisma/schema.prisma</span><pre>model Pet {
+  ...
+  <span class="hl">weightKg Float?</span>   <span class="cm">// ใส่ ? ให้เว้นว่างได้ ข้อมูลเดิมจะได้ไม่พัง</span>
+}</pre></li>
+        <li><b>สร้าง migration</b><span class="file">ในโฟลเดอร์ server</span><pre>npx prisma migrate dev --name add_pet_weight</pre><p>คำสั่งนี้สร้างคอลัมน์ใน Supabase และ generate Prisma Client ใหม่ให้ (ถ้า backend รันอยู่ ให้ปิดก่อนแล้วเปิดใหม่)</p></li>
+        <li><b>Zod</b><span class="file">server/src/validators/pet.schema.ts</span><pre><span class="hl">weightKg: z.number().positive("น้ำหนักต้องมากกว่า 0").max(150).nullable().optional(),</span></pre></li>
+        <li><b>Type ฝั่ง client</b><span class="file">client/src/types/models.ts</span><p>เพิ่ม <code>weightKg: number | null;</code> ใน <code>PetBase</code> และ <code>PetInput</code></p></li>
+        <li><b>ฟอร์ม</b><span class="file">client/src/features/pets/components/PetForm.tsx</span><p>เพิ่มใน <code>PetFormValues</code> (เป็น string), <code>emptyPetForm</code>, <code>toFormValues</code>, <code>toInput</code> (แปลงด้วย <code>Number()</code> หรือ null) และเพิ่ม <code>&lt;Field&gt;</code> ช่องกรอก</p></li>
+        <li><b>แสดงผล</b><span class="file">client/src/pages/PetDetailPage.tsx</span><p>เพิ่มใน array <code>facts</code>: <code>{ label: "น้ำหนัก", value: pet.weightKg ? `${pet.weightKg} กก.` : "-" }</code></p></li>
+      </ol>
+
+      <h3>2. เพิ่มตัวกรองใหม่ในหน้า /pets เช่น "ฉีดวัคซีนแล้วเท่านั้น"</h3>
+      <ol class="steps">
+        <li><b>Backend รับ query</b><span class="file">server/src/validators/pet.schema.ts + pet.controller.ts</span><p>ใน <code>petQuerySchema</code> เพิ่ม <code>vaccinated: z.enum(["true"]).optional()</code> แล้วใน <code>buildWhere</code> เพิ่ม <code>if (query.vaccinated) where.vaccinated = true;</code></p></li>
+        <li><b>Zustand</b><span class="file">client/src/types/models.ts + stores/filterStore.ts</span><p>เพิ่ม <code>vaccinatedOnly: boolean</code> ใน <code>PetFilters</code> และ <code>defaultFilters</code></p></li>
+        <li><b>ส่งไป API</b><span class="file">client/src/features/pets/petApi.ts</span><p>ใน <code>petApi.list</code> เพิ่ม <code>vaccinated: params.vaccinatedOnly ? "true" : undefined</code></p></li>
+        <li><b>UI</b><span class="file">client/src/features/pets/components/PetFilters.tsx</span><pre>&lt;label className="flex items-center gap-2 text-sm"&gt;
+  &lt;input type="checkbox" className="checkbox checkbox-sm"
+    checked={filters.vaccinatedOnly}
+    onChange={(e) =&gt; setFilter("vaccinatedOnly", e.target.checked)} /&gt;
+  ฉีดวัคซีนแล้ว
+&lt;/label&gt;</pre><p>ไม่ต้องแก้ PetsPage เลย เพราะ filters ทั้งก้อนเป็น queryKey อยู่แล้ว</p></li>
+      </ol>
+
+      <h3>3. เพิ่ม API ใหม่ เช่น GET /api/shelters/:id พร้อมสัตว์ในบ้านพักพิงนั้น</h3>
+      <ol class="steps">
+        <li><b>Controller</b><span class="file">server/src/controllers/meta.controller.ts</span><pre>export async function getShelter(req: Request&lt;{ id: string }&gt;, res: Response): Promise&lt;void&gt; {
+  const id = parseId(req.params.id);
+  const shelter = await prisma.shelter.findUnique({ where: { id }, include: { pets: true } });
+  if (!shelter) throw new HttpError(404, "ไม่พบบ้านพักพิง");
+  res.json({ data: shelter });
+}</pre><p>อย่าลืม import ที่หัวไฟล์: <code>import { HttpError } from "../utils/HttpError";</code> และ <code>import { parseId } from "../utils/validate";</code></p></li>
+        <li><b>Route</b><span class="file">server/src/routes/index.ts</span><pre>router.get("/shelters/:id", getShelter);</pre></li>
+        <li><b>ทดสอบ</b><span class="file">เบราว์เซอร์</span><p>เปิด <code>http://localhost:3000/api/shelters/1</code> ถ้าเปลี่ยนเป็น <code>/shelters/999</code> ต้องได้ 404</p></li>
+      </ol>
+
+      <h3>4. เพิ่มหน้าใหม่ เช่น /about</h3>
+      <ol class="steps">
+        <li><b>สร้างไฟล์</b><span class="file">client/src/pages/AboutPage.tsx</span><pre>import type { ReactElement } from "react";
+
+export function AboutPage(): ReactElement {
+  return &lt;h1 className="text-3xl font-bold"&gt;เกี่ยวกับเรา&lt;/h1&gt;;
+}</pre></li>
+        <li><b>ลงทะเบียน route</b><span class="file">client/src/router.tsx</span><p>ใน children ของ "/" เพิ่ม <code>{ path: "about", element: &lt;AboutPage /&gt; }</code> (วางก่อน <code>path: "*"</code>)</p></li>
+        <li><b>เพิ่มเมนู</b><span class="file">client/src/components/layout/Navbar.tsx</span><p>เพิ่มใน array <code>links</code>: <code>{ to: "/about", label: "เกี่ยวกับเรา", end: false }</code></p></li>
+      </ol>
+
+      <h3>5. งานแก้เล็ก ๆ ที่อาจโดนสั่ง</h3>
+      <div class="table-wrap"><table>
+        <tr><th>คำสั่ง</th><th>แก้ที่</th></tr>
+        <tr><td>เปลี่ยนเวลา cache เป็น 1 นาที</td><td><code>client/src/lib/queryClient.ts</code> → <code>staleTime: 60_000</code></td></tr>
+        <tr><td>เปลี่ยนสีหลักของเว็บ</td><td><code>client/src/index.css</code> → <code>--color-primary</code> ในธีม matchapaw</td></tr>
+        <tr><td>ให้ค้นหาไวขึ้น/ช้าลง</td><td><code>hooks/useDebouncedValue.ts</code> ค่า <code>delayMs = 350</code></td></tr>
+        <tr><td>ชื่อสัตว์ยาวได้ 80 ตัวอักษร</td><td><code>validators/pet.schema.ts</code> → <code>.max(80)</code> และ <code>schema.prisma</code> → <code>@db.VarChar(80)</code> แล้ว migrate และ <code>PetForm.tsx</code> <code>maxLength</code></td></tr>
+        <tr><td>toast หายช้าลง</td><td><code>stores/toastStore.ts</code> → <code>setTimeout(..., 3500)</code></td></tr>
+        <tr><td>เพิ่มข้อมูลตัวอย่าง</td><td><code>server/prisma/seed.ts</code> → เพิ่มใน <code>petData</code> แล้ว <code>npx prisma db seed</code></td></tr>
+        <tr><td>เรียงสัตว์แบบใหม่ เช่น อายุมากไปน้อย</td><td><code>pet.schema.ts</code> (เพิ่มค่าใน sort enum) + <code>sortOptions</code> ใน pet.controller.ts + <code>PET_SORTS</code>/<code>sortLabel</code> ฝั่ง client</td></tr>
+      </table></div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="qa" class="qa">
+      <h2>คำถามที่อาจารย์อาจถาม</h2>
+      <p class="lead">กดเพื่อดูคำตอบสั้น ๆ ที่พูดได้ทันที</p>
+      <details><summary>ทำไมต้องแยก Zustand กับ TanStack Query? ใช้ตัวเดียวไม่ได้หรือ</summary><div class="ans">ข้อมูลสองแบบมีธรรมชาติต่างกัน ข้อมูลจาก Server ต้องจัดการ loading, error, cache, การโหลดใหม่ ซึ่ง TanStack Query ทำให้หมด ส่วน state ในเบราว์เซอร์ (ตัวกรอง ธีม รายการโปรด) ไม่ต้องยุ่งกับ Server เลย Zustand จึงง่ายกว่า ถ้าเอาข้อมูล DB ไปเก็บใน Zustand ด้วยจะมีสองที่ที่ต้องอัปเดตให้ตรงกัน เสี่ยง desync</div></details>
+      <details><summary>Zero-Refresh ทำงานอย่างไร</summary><div class="ans">ทุก <code>useMutation</code> มี <code>onSuccess</code> ที่เรียก <code>queryClient.invalidateQueries({ queryKey: ["pets"] })</code> เพื่อบอกว่า cache ชุดนั้นเก่าแล้ว TanStack Query จะดึงข้อมูลใหม่ให้ query ที่กำลังแสดงอยู่ทันที หน้าจอจึงอัปเดตเองโดยไม่ต้องกด F5 (ดู <code>features/pets/petApi.ts</code>)</div></details>
+      <details><summary>@@unique([adopterId, petId]) ใช้ทำอะไร ลองให้ดูได้ไหม</summary><div class="ans">เป็นกฎในฐานข้อมูลว่าคู่ (ผู้รับเลี้ยง, สัตว์) ห้ามซ้ำ คนเดิมจึงขอสัตว์ตัวเดิมได้ครั้งเดียว Demo: ส่งคำขอด้วยอีเมลเดิมกับสัตว์ตัวเดิมสองครั้ง ครั้งที่สองได้ 409 "อีเมลนี้ได้ส่งคำขอรับเลี้ยงน้องตัวนี้ไปแล้ว" เพราะ PostgreSQL ปฏิเสธ (Prisma error P2002) แล้ว controller แปลงเป็น 409</div></details>
+      <details><summary>PUT กับ PATCH ต่างกันอย่างไร</summary><div class="ans">PUT ส่งข้อมูลครบทุกฟิลด์เพื่อแทนที่ทั้งหมด (ใช้ในฟอร์มแก้ไข ตรวจด้วย <code>petCreateSchema</code>) ส่วน PATCH ส่งเฉพาะฟิลด์ที่เปลี่ยน (ใช้ตอนเปลี่ยนสถานะในตาราง Admin ตรวจด้วย <code>petPatchSchema</code> ที่เป็น partial)</div></details>
+      <details><summary>ทำไมลบสัตว์แล้วคำขอหายไปด้วย / ทำไมลบชนิดสัตว์ไม่ได้</summary><div class="ans">ใน schema กำหนด <code>onDelete: Cascade</code> ที่ AdoptionRequest.pet ลบสัตว์แล้วคำขอของตัวนั้นถูกลบตาม ส่วน Pet.species ใช้ <code>onDelete: Restrict</code> ถ้ายังมีสัตว์ใช้ชนิดนั้นอยู่จะลบชนิดไม่ได้ ป้องกันข้อมูลกำพร้า</div></details>
+      <details><summary>ถ้าส่งข้อมูลผิด Backend รู้ได้อย่างไร ทำไมไม่เชื่อหน้าเว็บ</summary><div class="ans">คนอื่นยิง API ตรงได้โดยไม่ผ่านหน้าเว็บ (เช่น Postman) Backend จึงต้องตรวจเองทุกครั้งด้วย Zod (<code>parseWith</code> ใน controller) ถ้าไม่ผ่านตอบ 400 พร้อมรายละเอียดทุกฟิลด์ ส่วนการตรวจในฟอร์มฝั่ง client มีไว้ให้ผู้ใช้รู้เร็วขึ้นเท่านั้น</div></details>
+      <details><summary>ทำไมใช้ Transaction ตอนส่งคำขอและอนุมัติ</summary><div class="ans">การส่งคำขอมีหลายคำสั่ง: upsert ผู้รับเลี้ยง, สร้างคำขอ, เปลี่ยนสถานะสัตว์ ถ้าทำไม่ครบข้อมูลจะไม่ตรงกัน <code>prisma.$transaction</code> ทำให้สำเร็จทั้งหมดหรือย้อนกลับทั้งหมด</div></details>
+      <details><summary>staleTime คืออะไร ตั้งไว้เท่าไร</summary><div class="ans">ระยะเวลาที่ถือว่าข้อมูลใน cache ยังสด ไม่ต้องดึงใหม่ ตั้งไว้ 30 วินาที (<code>lib/queryClient.ts</code>) ส่วนชนิดสัตว์และบ้านพักพิงตั้ง 10 นาที เพราะแทบไม่เปลี่ยน แต่หลังเพิ่ม/แก้/ลบเรา invalidate เอง จึงไม่ต้องรอให้หมดเวลา</div></details>
+      <details><summary>Type ของข้อมูลฝั่ง Backend มาจากไหน เขียนเองหรือ</summary><div class="ans">ส่วนใหญ่ได้อัตโนมัติ: Type ของข้อมูลจาก DB มาจาก Prisma (<code>Prisma.PetGetPayload</code>) และ Type ของ body ที่ผ่านการตรวจมาจาก Zod (<code>z.output</code>) ฝั่ง client เราเขียน Type ใน <code>types/models.ts</code> ให้ตรงกับ schema</div></details>
+      <details><summary>รายการโปรดจำได้อย่างไรเมื่อปิดเบราว์เซอร์</summary><div class="ans">favoriteStore ใช้ middleware <code>persist</code> ของ Zustand บันทึกลง localStorage ที่ key <code>matchapaw-favorites</code> เปิด DevTools → Application → Local Storage ให้ดูได้ และเก็บแค่ id ไม่เก็บข้อมูลสัตว์</div></details>
+      <details><summary>ถ้าฐานข้อมูลล่มหรือเน็ตหลุด หน้าเว็บจะเป็นอย่างไร</summary><div class="ans">Backend ตอบ 503 (errorHandler จับ ECONNREFUSED) หรือถ้า Backend ไม่ได้เปิด apiClient โยน error "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้" ทุกหน้าจะแสดง ErrorAlert พร้อมปุ่มลองใหม่ ไม่มีหน้าจอว่างหรือพัง</div></details>
+      <details><summary>CORS คืออะไร ทำไมต้องใช้</summary><div class="ans">หน้าเว็บ (localhost:5173) กับ API (localhost:3000) คนละ origin เบราว์เซอร์จะบล็อกการเรียกข้ามกัน ถ้า Server ไม่อนุญาต <code>cors()</code> ใน app.ts ใส่ header อนุญาตเฉพาะ origin ใน <code>CLIENT_ORIGIN</code></div></details>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="commands">
+      <h2>คำสั่งที่ใช้บ่อย</h2>
+      <p class="lead">คำสั่ง prisma ต้องรันในโฟลเดอร์ <code>server</code> เสมอ ถ้ารันผิดที่ npx จะไปโหลด Prisma เวอร์ชันอื่นมาแทน</p>
+      <div class="grid g2">
+        <div class="card"><h4>รันเว็บ (เปิด 2 หน้าต่าง)</h4>
+<pre>cd server
+npm run dev       <span class="cm"># API :3000</span>
+
+cd client
+npm run dev       <span class="cm"># เว็บ :5173</span></pre></div>
+        <div class="card"><h4>ฐานข้อมูล (ใน server/)</h4>
+<pre>npx prisma migrate dev --name ชื่อ  <span class="cm"># แก้ schema แล้ว</span>
+npx prisma migrate deploy         <span class="cm"># ใช้ migration ที่มี</span>
+npx prisma db seed                <span class="cm"># ใส่ข้อมูลตัวอย่าง</span>
+npx prisma studio                 <span class="cm"># ดูข้อมูลในเบราว์เซอร์</span></pre></div>
+        <div class="card"><h4>ตรวจ TypeScript</h4>
+<pre>cd server && npx tsc --noEmit
+cd client && npx tsc -b</pre></div>
+        <div class="card"><h4>Git</h4>
+<pre>git pull                      <span class="cm"># ดึงงานล่าสุดของเพื่อน</span>
+git add -A
+git commit -m "อธิบายสิ่งที่แก้"
+git push</pre></div>
+      </div>
+      <div class="callout warn"><strong>เครื่องเพื่อนรันไม่ขึ้น?</strong> ส่วนใหญ่เพราะลืม <code>npm install</code> ในทั้งสองโฟลเดอร์ หรือยังไม่ได้สร้าง <code>server/.env</code> จาก <code>.env.example</code> (ขอ connection string Supabase จากเพื่อนทางแชตส่วนตัว)</div>
+    </section>
+  </main>
+</div>
+
+<script>
+  // ค้นหาในคำอธิบายไฟล์
+  const input = document.getElementById("search");
+  const files = [...document.querySelectorAll("details.file")];
+  const count = document.getElementById("count");
+  function updateCount(n) { count.textContent = `แสดง ${n} จาก ${files.length} รายการ`; }
+  updateCount(files.length);
+  input.addEventListener("input", () => {
+    const q = input.value.trim().toLowerCase();
+    let n = 0;
+    for (const f of files) {
+      const hit = !q || f.textContent.toLowerCase().includes(q);
+      f.classList.toggle("hidden", !hit);
+      if (hit) n++;
+      if (q && hit) f.open = true;
+    }
+    updateCount(n);
+  });
+  document.getElementById("expandAll").addEventListener("click", (e) => { e.preventDefault(); files.forEach((f) => (f.open = true)); });
+  document.getElementById("collapseAll").addEventListener("click", (e) => { e.preventDefault(); files.forEach((f) => (f.open = false)); });
+
+  // คลิกลิงก์ในต้นไม้โฟลเดอร์ → เปิดไฟล์นั้น
+  document.querySelectorAll('a[href^="#f-"]').forEach((a) => {
+    a.addEventListener("click", () => {
+      const target = document.querySelector(a.getAttribute("href"));
+      if (target) { target.classList.remove("hidden"); target.open = true; }
+    });
+  });
+
+  // ไฮไลต์เมนูตามหัวข้อที่กำลังอ่าน
+  const links = [...document.querySelectorAll("nav.side a")];
+  const sections = links.map((l) => document.querySelector(l.getAttribute("href"))).filter(Boolean);
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (en.isIntersecting) links.forEach((l) => l.classList.toggle("active", l.getAttribute("href") === "#" + en.target.id));
+    });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  sections.forEach((s) => io.observe(s));
+
+  // สลับธีม (จำค่าไว้ ถ้าเบราว์เซอร์อนุญาต)
+  const root = document.documentElement;
+  try { const saved = localStorage.getItem("guide-theme"); if (saved) root.dataset.theme = saved; } catch (e) {}
+  document.getElementById("themeBtn").addEventListener("click", () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("guide-theme", root.dataset.theme); } catch (e) {}
+  });
+</script>
+</body>
+</html>
